@@ -1,0 +1,9 @@
+import os
+
+PROJECT_ID = os.getenv("GCP_PROJECT")
+PUBSUB_SUBSCRIPTION = os.getenv("PUBSUB_SUBSCRIPTION")
+
+OPENSEARCH_HOST = os.getenv("OPENSEARCH_HOST", "localhost")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK")
