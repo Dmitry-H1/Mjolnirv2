@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes.incidents import router as incident_router
+from api.routes.incidents import router as incident_router
 
 app = FastAPI(title="Mjolnir API")
 
