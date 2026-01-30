@@ -16,3 +16,6 @@ def list_incidents(db: Session = Depends(get_db)):
 @router.get("/")
 def test():
     return "It works!"
+
+def gihubztestz():
+    return "githubztestz"
