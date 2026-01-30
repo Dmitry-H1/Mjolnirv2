@@ -17,5 +17,10 @@ def list_incidents(db: Session = Depends(get_db)):
 def test():
     return "It works!"
 
+<<<<<<< HEAD
 def gihubztestz():
     return "githubztestz"
+=======
+def testGit():
+    return 'fffff'
+>>>>>>> b31079976141b017c57eb4ad1dcd80e47a1f4ea3
