@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from core.config import DATABASE_URL
 
-engine = create_engine(DATABASE_URL)
+'''engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 
 def get_db():
@@ -10,4 +10,4 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()
+        db.close()'''
