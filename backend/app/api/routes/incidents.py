@@ -13,7 +13,7 @@ def list_incidents(db: Session = Depends(get_db)):
         .all()
     )'''
 
-@router.get("/")
+@router.get("")
 def test():
     return "It works!"
 
