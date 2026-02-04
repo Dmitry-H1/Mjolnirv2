@@ -3,7 +3,7 @@ from google.cloud import pubsub_v1
 from app.core.config import PROJECT_ID, PUBSUB_SUBSCRIPTION
 from app.stream.features import extract_features
 from app.stream.detectors import detect_anomaly
-from app.services.logs import index_log
+from backend.app.services.log_service import index_log
 from app.services.incidents import create_incident
 
 subscriber = pubsub_v1.SubscriberClient()
