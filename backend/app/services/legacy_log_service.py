@@ -68,7 +68,7 @@ class LegacyLogService:
             for row in reader:
                 lines.append(" ".join(str(v) for v in row.values()))
 
-        elif ext == "txt":
+        elif ext in ["txt", "log"]:
             # For plain text, read each line as a log
             lines = [line for line in decoded.splitlines() if line.strip()]
 
