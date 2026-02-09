@@ -23,6 +23,7 @@ Rules:
 - Do NOT include explanations or markdown
 - Your response must be directly parseable by json.loads()
 - Each regex must match only its respective field, not the full log line.
+- Regex must be accepted by re.search(regex, line) AND NOT produce re.error: look-behind requires fixed-width pattern
 - Do NOT include other fields in the regex for a field.
 
 Return EXACTLY this Valid JSON structure that can be converted in python:

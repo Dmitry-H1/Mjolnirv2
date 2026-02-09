@@ -18,7 +18,7 @@ class LegacyLogAiService:
 
         raw = self.client.generate(
             prompt_filled,
-            temperature=0.2
+            temperature=0.4
         )
 
 
