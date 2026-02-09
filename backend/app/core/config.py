@@ -1,9 +1,12 @@
-import os
+from pydantic_settings import BaseSettings
+from pathlib import Path
 
-PROJECT_ID = os.getenv("GCP_PROJECT")
-PUBSUB_SUBSCRIPTION = os.getenv("PUBSUB_SUBSCRIPTION")
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
-OPENSEARCH_HOST = os.getenv("OPENSEARCH_HOST", "localhost")
-DATABASE_URL = os.getenv("DATABASE_URL")
+class Settings(BaseSettings):
+    api_key: str
 
-SLACK_WEBHOOK = os.getenv("SLACK_WEBHOOK")
+    class Config:
+        env_file = BASE_DIR / ".env"  
+
+settings = Settings()

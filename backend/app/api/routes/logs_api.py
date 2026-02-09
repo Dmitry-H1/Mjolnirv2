@@ -3,8 +3,9 @@ from typing import List, Union
 from schemas.raw_log import RawLogSchema
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
-from dependencies.service_dependencies import get_log_service, get_legacy_log_service
+from dependencies.service_dependencies import get_legacy_log_ai_service, get_log_service, get_legacy_log_service
 from typing import Annotated
+from ai.legacy_log_ai_service import LegacyLogAiService
 
 router = APIRouter()
 
@@ -60,7 +61,24 @@ async def upload_legacy_file(
     parsed_dicts = legacy_log_service.parse_file(contents, file.filename)
     validated_logs = legacy_log_service.to_raw_schema(parsed_dicts)
 
-    for log in validated_logs:
-        print(f"[{log.timestamp}]: {log.message}")
+    #for log in validated_logs:
+    #    print(f"[{log.timestamp}]: {log.message}")
 
     return {"status": "success", "logs": validated_logs}
+
+
+
+'''@router.post("/ai")
+async def extraxt_with_ai(
+    service: Annotated[LegacyLogAiService, Depends(get_legacy_log_ai_service)],
+    file: UploadFile = File(..., description="The log file to upload")
+):
+    
+    
+    content = await file.read()
+    decoded = content.decode("utf-8", errors="ignore")
+    lines = [line for line in decoded.splitlines() if line.strip()]
+
+    return service.extract_structure(lines)'''
+    
+
