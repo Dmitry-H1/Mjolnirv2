@@ -1,0 +1,25 @@
+{
+  "name": "nextjs-ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@google-cloud/bigquery": "^8.1.1",
+    "@tanstack/react-table": "^8.21.3",
+    "next": "14.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "25.2.3",
+    "@types/react": "19.2.13",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.4",
+    "typescript": "5.9.3"
+  }
+}
