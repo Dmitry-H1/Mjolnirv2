@@ -3,9 +3,10 @@ from typing import List, Union
 from schemas.raw_log import RawLogSchema
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
-from dependencies.service_dependencies import get_legacy_log_ai_service, get_log_service, get_legacy_log_service
+from services.log_enrichment_service import LogEnrichmentService
+from dependencies.service_dependencies import get_log_service, get_legacy_log_service, get_log_enrichment_service
 from typing import Annotated
-from ai.legacy_log_ai_service import LegacyLogAiService
+from ai.llm.legacy_log_ai_service import LegacyLogAiService
 
 router = APIRouter()
 
@@ -13,7 +14,8 @@ router = APIRouter()
 @router.post("/ingest")
 async def ingest_logs(
     logs: Union[RawLogSchema, List[RawLogSchema], List[dict]],
-    log_service: Annotated[LogService, Depends(get_log_service)]
+    log_service: Annotated[LogService, Depends(get_log_service)],
+    enrich_service: Annotated[LogEnrichmentService, Depends(get_log_enrichment_service)]
 ):
     # Normalize single log into a list
     if isinstance(logs, (RawLogSchema, dict)):
@@ -24,7 +26,9 @@ async def ingest_logs(
     for log in validated_logs:
         print(f"[{log.timestamp}]: {log.message}")
 
-    return {"status": "success", "count": len(validated_logs)}
+    enriched_logs = enrich_service.enrich_logs(validated_logs)
+
+    return {"status": "success", "logs": enriched_logs}
 
 
 # Endpoint for file uploads
@@ -81,4 +85,3 @@ async def extraxt_with_ai(
 
     return service.extract_structure(lines)'''
     
-

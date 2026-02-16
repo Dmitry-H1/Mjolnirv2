@@ -3,7 +3,7 @@ import csv
 import re
 from datetime import datetime
 from typing import List, Dict, Any
-from ai.legacy_log_ai_service import LegacyLogAiService
+from ai.llm.legacy_log_ai_service import LegacyLogAiService
 from schemas.raw_log import RawLogSchema
 import hashlib
 from core.constants import LEGACY_LOG_SCHEMA_CONVERSION_SAMPLE_SIZE

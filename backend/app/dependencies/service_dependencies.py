@@ -1,9 +1,10 @@
 from fastapi import Depends
 from grpc import services
-from ai.legacy_log_ai_service import LegacyLogAiService
+from ai.llm.legacy_log_ai_service import LegacyLogAiService
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
-from ai.ai_client import AiClient
+from services.log_enrichment_service import LogEnrichmentService
+from ai.llm.ai_client import AiClient
 from core.config import settings
 
 # Shared AI client (created once)
@@ -13,7 +14,14 @@ ai_client = AiClient(
 )
 
 
+# Initialize for every request to not reload models every time
+log_enrichment_service = LogEnrichmentService(
+    category_model_path="ai/ml/category_model.pkl",
+    severity_model_path="ai/ml/severity_model.pkl",
+)
 
+def get_log_enrichment_service() -> LogEnrichmentService:
+    return log_enrichment_service
 
 def get_log_service() -> LogService:
     """
