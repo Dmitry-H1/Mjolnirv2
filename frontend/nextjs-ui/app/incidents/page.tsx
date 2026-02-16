@@ -20,11 +20,28 @@ export default function IncidentsPage() {
     fetch('/api/incidents')
       .then(res => res.json())
       .then(data => {
+
+        const incidentList = data.tableData && Array.isArray(data.tableData) 
+          ? data.tableData 
+          : [];
+        
+        setIncidents(incidentList);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  /*
+  useEffect(() => {
+    fetch('/api/incidents')
+      .then(res => res.json())
+      .then(data => {
         setIncidents(Array.isArray(data) ? data : [])
         setLoading(false)
       })
       .catch(() => setLoading(false))
   }, [])
+  */
 
   if (loading) {
     return <div className="p-6">Loading incidents…</div>

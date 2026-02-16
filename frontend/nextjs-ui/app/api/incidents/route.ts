@@ -34,7 +34,7 @@ export async function GET() {
     const [rows] = await bigquery.query({ query })
 
     const incidents: Incident[] = rows.map((row: any) => {
-      // BigQuery sometimes wraps values like { value: ... }
+
       const unwrap = (field: any) =>
         field && typeof field === 'object' && 'value' in field
           ? field.value
@@ -60,7 +60,17 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(incidents)
+    const chartReadyData = {
+      categories: incidents.map(i => i.service),
+      seriesData: incidents.map(i => i.count)
+    };
+
+    return NextResponse.json({
+      tableData: incidents,
+      chartData: chartReadyData 
+    });
+
+    //return NextResponse.json(incidents)
   } catch (error) {
     console.error('Incident API error:', error)
     return NextResponse.json(
