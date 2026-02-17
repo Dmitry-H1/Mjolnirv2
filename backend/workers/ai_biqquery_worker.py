@@ -137,7 +137,7 @@ def to_bq_row(enriched: dict, meta: dict) -> dict:
        else:
         data = enriched_obj.dict()
 
-    # Ensure entities is safe (dict or None). If your BQ schema uses STRING, switch to json.dumps(...)
+    
        entities = data.get("entities")
        if entities is None:
         entities = {}
