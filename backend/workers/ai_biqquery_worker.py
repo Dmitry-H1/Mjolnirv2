@@ -3,12 +3,12 @@ import json
 import uuid
 import time
 from datetime import datetime, timezone
-from typing import Dict, Tuple, Optional
+from typing import Dict, Tuple, Optional, Any
 
 from google.cloud import pubsub_v1, bigquery
 
 from app.schemas.raw_log import RawLogSchema
-from app.services.ai.pipeline import AIPipeline
+from app.services.log_enrichment_service import LogEnrichmentService
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")
 SUBSCRIPTION_ID = os.getenv("RAW_LOGS_SUB_ID", "raw-logs-sub")
@@ -21,13 +21,13 @@ BQ_BASE_TEMPLATE = os.getenv("BQ_BASE_TEMPLATE", "baselines_template_daily")
 BQ_BASE_LATENCY = os.getenv("BQ_BASE_LATENCY", "baselines_service_latency_daily")
 BQ_BASE_ERROR = os.getenv("BQ_BASE_ERROR", "baselines_service_errorrate_5m")
 
-BASELINE_TTL_SECONDS = int(os.getenv("BASELINE_TTL_SECONDS", "600"))  # 10 min
+BASELINE_TTL_SECONDS = int(os.getenv("BASELINE_TTL_SECONDS", "600"))  
 
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = subscriber.subscription_path(PROJECT_ID, SUBSCRIPTION_ID)
 
 bq = bigquery.Client(project=PROJECT_ID)
-ai = AIPipeline()
+enricher = LogEnrichmentService()
 
 _last_loaded = 0.0
 _latest_date: Optional[str] = None
@@ -96,11 +96,10 @@ def _load_baselines_if_needed():
     print(f"Loaded baselines: date={_latest_date}, templates={len(_template_freq)}, latency={len(_latency_p95)}, error={len(_error_rate)}")
 
 def score_with_baselines(enriched: dict) -> Tuple[float, str]:
-    """
-    Return (anomaly_score, anomaly_reason) using BigQuery baselines.
-    """
-    svc = enriched.get("service") or "unknown"
-    tmpl = enriched.get("normalized_message") or ""
+
+    svc = service or "unknown"
+    tmpl = normalized_message or ""
+    sev = (severity or "").upper()
 
     #new template scoring
     freq = _template_freq.get((svc, tmpl), 0.0)
@@ -133,7 +132,16 @@ def score_with_baselines(enriched: dict) -> Tuple[float, str]:
     return score, reason
 
 def to_bq_row(enriched: dict, meta: dict) -> dict:
-    return {
+       if hasattr(enriched_obj, "model_dump"):
+        data = enriched_obj.model_dump()
+       else:
+        data = enriched_obj.dict()
+
+    # Ensure entities is safe (dict or None). If your BQ schema uses STRING, switch to json.dumps(...)
+       entities = data.get("entities")
+       if entities is None:
+        entities = {}
+       return {
         "ingestion_id": meta["ingestion_id"],
         "event_time": enriched["timestamp"].isoformat() if enriched.get("timestamp") else None,
         "service": enriched.get("service"),
@@ -168,18 +176,22 @@ def callback(message: pubsub_v1.subscriber.message.Message):
             "object": payload.get("object"),
         }
 
-        logs = [RawLogSchema(**x) for x in payload["logs"]]
+        raw_logs = [RawLogSchema(**x) for x in payload["logs"]]
+        enriched_logs = enricher.enrich_logs(raw_logs)
 
-        rows = []
-        for log in logs:
-            enriched = ai.process_one(log) 
-            enriched["latency_ms"] = getattr(log, "latency_ms", None)
+        rows = list[dict]
+        for raw, enriched_obj in zip(raw_logs, enriched_logs):
+            
+            latency_ms = getattr(raw, "latency_ms", None)
 
-            score, reason = score_with_baselines(enriched)
-            enriched["anomaly_score"] = score
-            enriched["anomaly_reason"] = reason
+            score, reason = score_with_baselines(
+                service=getattr(enriched_obj, "service", None),
+                normalized_message=getattr(enriched_obj, "normalized_message", None),
+                severity=getattr(enriched_obj, "severity", None),
+                latency_ms=latency_ms,
+            )
 
-            rows.append(to_bq_row(enriched, meta))
+            rows.append(to_bq_row(enriched_obj, meta, score, reason))
 
         insert_batch(rows)
         message.ack()
