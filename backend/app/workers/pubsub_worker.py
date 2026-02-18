@@ -6,7 +6,7 @@ from google.cloud import pubsub_v1
 from google.cloud import storage
 
 from services.legacy_log_service import LegacyLogService
-from dependencies.service_dependencies import get_log_enrichment_service
+from dependencies.service_dependencies import get_legacy_log_service
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")
 
@@ -20,7 +20,7 @@ publisher = pubsub_v1.PublisherClient()
 raw_logs_topic_path = publisher.topic_path(PROJECT_ID, RAW_LOGS_TOPIC_ID)
 
 storage_client = storage.Client()
-legacy_parser = get_log_enrichment_service()
+legacy_parser = get_legacy_log_service()
 
 def process_gcs_event(event: dict):
     bucket_name = event["bucket"]

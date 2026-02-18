@@ -1,6 +1,8 @@
 import json
 import csv
 import re
+import os
+import time
 from datetime import datetime
 from typing import List, Dict, Any
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
@@ -89,21 +91,18 @@ class LegacyLogService:
         pending: List[str] = []
 
         for line in lines:
-            print("INCOMING LINE")
-            print(line)
+            print("INCOMING LINE", line[:200])
+
             parsed = self._try_parse_with_cache(line)
             if parsed:
                 parsed_logs.append(parsed)
-                print("PARSED LOGS")
-                print(parsed_logs)
+                print(f"PARSED_LOGS size ={len(parsed_logs)}")
             else:
                 pending.append(line)
-                print("PENDING")
-                print(pending)
+                print(f"PENDING size={len(pending)}")
 
                 if len(self.sample_buffer) >= LEGACY_LOG_SCHEMA_CONVERSION_SAMPLE_SIZE:
-                    print("SAMPLE_BUFFER")
-                    print(self.sample_buffer)
+                    print(f"SAMPLE_BUFFER size={len(self.sample_buffer)}")
                     self._learn_new_pattern()
 
                     # retry buffered lines
@@ -112,12 +111,20 @@ class LegacyLogService:
                         parsed = self._try_parse_with_cache(p)
                         if parsed:
                             parsed_logs.append(parsed)
-                            print("PARSED 2ND")
-                            print(parsed_logs)
+                            print(f"PARSED 2ND size={len(parsed_logs)}")
                         else:
                             still_pending.append(p)
                     pending = still_pending
-
+        if pending:
+            print("FLUSHING PENDING AT EOF")
+            msg = "\n".join(pending).strip()
+            parsed_logs.append({
+                "timestamp": None,
+                "severity": None,
+                "service": "unknown",
+                "message": msg,
+                "raw": msg,
+    })                    
         return parsed_logs
     
 

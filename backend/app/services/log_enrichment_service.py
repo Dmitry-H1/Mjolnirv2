@@ -118,5 +118,5 @@ class LogEnrichmentService:
 
     def extract_entities(self, message: str) -> Dict[str, Any]:
 
-        return None
+        return {}
 
