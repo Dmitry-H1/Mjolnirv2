@@ -32,11 +32,11 @@ export default function LogsPage() {
   const [loading, setLoading] = useState(true)
   const [severityFilter, setSeverityFilter] = useState('ALL')
 
-  useEffect(() => {
-    fetch('/api/logs')
-      .then(res => res.json())
-      .then(data => {
-        setLogs(data)
+  useEffect(() => { 
+    fetch('/api/logs') 
+      .then(res => res.json()) 
+      .then(data => { 
+        setLogs(data.rows)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -146,3 +146,5 @@ export default function LogsPage() {
     </div>
   )
 }
+
+

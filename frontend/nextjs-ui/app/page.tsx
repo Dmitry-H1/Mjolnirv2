@@ -9,18 +9,30 @@ export default function Home() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch('/api/incidents');
-        const json = await response.json();
-        setData(json.chartData);
+  useEffect(() => { 
+    async function fetchData() { 
+      try { 
+        const [incidentsRes, logsRes] = await Promise.all([ 
+          fetch('/api/incidents'), 
+          fetch('/api/logs')
+        ]);
+
+        const incidentsJson = await incidentsRes.json();
+        const logsJson = await logsRes.json();
+
+        setData({ 
+          countSeries: incidentsJson.chartData.countSeries, 
+          scoreSeries: logsJson.scoreSeries, 
+          logs: logsJson.rows
+        });
+
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchData();
   }, []);
 
@@ -31,7 +43,7 @@ export default function Home() {
     xaxis: { type: 'datetime' },
     yaxis: { min: 0, forceNiceScale: true },
     stroke: { curve: 'smooth', width: 3 },
-    colors: ['#3B82F6'] // Blue
+    colors: ['#3B82F6']
   };
 
   const countSeries = [{
@@ -39,23 +51,23 @@ export default function Home() {
     data: data?.countSeries || []
   }];
 
-  // --- CHART 2: SEVERITY SCORE (MAX SCORE) ---
+  // --- CHART 2: SEVERITY SCORE (ANOMOLY SCORE) ---
   const severityOptions: any = {
     chart: { id: 'severity-chart', type: 'scatter', zoom: { enabled: true } },
-    title: { text: 'Anomaly Severity (Max Score)' },
+    title: { text: 'Anomaly Severity (Anomaly Score)' },
     xaxis: { type: 'datetime' },
     yaxis: { 
       min: 0, 
       max: 1, 
       title: { text: 'Severity Score' } 
     },
-    colors: ['#EF4444'], // Red
+    colors: ['#EF4444'],
     markers: { size: 6 }
   };
 
-  const severitySeries = [{
-    name: "Max Anomaly Score",
-    data: data?.scoreSeries || []
+  const severitySeries = [{ 
+    name: "Anomaly Score", 
+    data: data?.scoreSeries || [] 
   }];
 
   if (loading) return <div className="p-8">Loading Dashboard...</div>;
@@ -78,3 +90,5 @@ export default function Home() {
     </main>
   );
 }
+
+

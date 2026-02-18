@@ -61,8 +61,7 @@ export async function GET() {
     })
 
     const chartReadyData = {
-      countSeries: incidents.map(i => ({ x: i.lastSeen, y: i.count })),
-      scoreSeries: incidents.map(i => ({ x: i.lastSeen, y: i.maxScore }))
+      countSeries: incidents.map(i => ({ x: i.lastSeen, y: i.count }))
     };
 
     return NextResponse.json({
