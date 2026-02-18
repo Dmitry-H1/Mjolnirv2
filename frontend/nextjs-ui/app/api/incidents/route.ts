@@ -61,8 +61,8 @@ export async function GET() {
     })
 
     const chartReadyData = {
-      categories: incidents.map(i => i.service),
-      seriesData: incidents.map(i => i.count)
+      countSeries: incidents.map(i => ({ x: i.lastSeen, y: i.count })),
+      scoreSeries: incidents.map(i => ({ x: i.lastSeen, y: i.maxScore }))
     };
 
     return NextResponse.json({
@@ -70,7 +70,6 @@ export async function GET() {
       chartData: chartReadyData 
     });
 
-    //return NextResponse.json(incidents)
   } catch (error) {
     console.error('Incident API error:', error)
     return NextResponse.json(
