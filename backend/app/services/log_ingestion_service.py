@@ -17,9 +17,9 @@ class LogIngestionService:
         topic_path = self.publisher.topic_path(self.project_id, topic_id)
         payload = {
             "ingestion_id": str(uuid.uuid4()),
-            "logs": [log.model_dump_json() if hasattr(log, "model_dump") else log for log in logs]
+            "logs": [log.model_dump_json() for log in logs]
         }
-        self.publisher.publish(topic_path, json.dumps(payload).encode("utf-8"))
+        self.publisher.publish(topic_path, json.dumps(payload).encode("utf-8")).result()
 
     def upload_file(self, file_bytes: bytes, filename: str, file_type: str) -> str:
         blob_name = f"{file_type}/{uuid.uuid4()}_{filename}"
