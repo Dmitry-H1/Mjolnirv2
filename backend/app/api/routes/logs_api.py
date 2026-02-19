@@ -4,18 +4,20 @@ from schemas.raw_log import RawLogSchema
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
 from services.log_enrichment_service import LogEnrichmentService
-from dependencies.service_dependencies import get_log_service, get_legacy_log_service, get_log_enrichment_service
+from dependencies.service_dependencies import get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
 from typing import Annotated
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
+from core.config import settings
 
 router = APIRouter()
+ingestion_service = get_log_ingestion_service()
+
 
 # Endpoint for direct log ingestion
 @router.post("/ingest")
 async def ingest_logs(
     logs: Union[RawLogSchema, List[RawLogSchema], List[dict]],
-    log_service: Annotated[LogService, Depends(get_log_service)],
-    enrich_service: Annotated[LogEnrichmentService, Depends(get_log_enrichment_service)]
+    log_service: Annotated[LogService, Depends(get_log_service)]
 ):
     # Normalize single log into a list
     if isinstance(logs, (RawLogSchema, dict)):
@@ -23,52 +25,23 @@ async def ingest_logs(
 
     validated_logs = log_service.parse_logs(logs)
 
-    for log in validated_logs:
-        print(f"[{log.timestamp}]: {log.message}")
-
-    enriched_logs = enrich_service.enrich_logs(validated_logs)
-
-    return {"status": "success", "logs": enriched_logs}
-
-
-# Endpoint for file uploads
-@router.post("/upload")
-async def upload_logs(
-    log_service: Annotated[LogService, Depends(get_log_service)],
-    file: UploadFile = File(..., description="The log file to upload")
-):
-    print(file.filename)
-    # Read the file contents
-    contents = await file.read()
-    
-    try:
-        validated_logs = log_service.parse_logs_from_file(contents, file.filename)
-    except ValueError as e:
-        return {"error": str(e)}
-
-    for log in validated_logs:
-        print(f"[{log.timestamp}]: {log.message}")
+    ingestion_service.publish_logs(validated_logs, settings.raw_logs_topic_id)
 
     return {"status": "success", "count": len(validated_logs)}
 
 
-# legacy file with logs
-@router.post("/upload/legacy")
-async def upload_legacy_file(
-    legacy_log_service: Annotated[LegacyLogService, Depends(get_legacy_log_service)],
-    file: UploadFile = File(..., description="Legacy log file to upload")
-):
-    """
-    Upload a legacy log file and parse it into the new RawLogSchema.
-    """
+@router.post("/upload")
+async def upload_logs(file: UploadFile = File(...)):
     contents = await file.read()
-    parsed_dicts = legacy_log_service.parse_file(contents, file.filename)
-    validated_logs = legacy_log_service.to_raw_schema(parsed_dicts)
+    path = ingestion_service.upload_file(contents, file.filename, file_type="raw_logs")
+    return {"status": "uploaded", "path": path}
 
-    #for log in validated_logs:
-    #    print(f"[{log.timestamp}]: {log.message}")
 
-    return {"status": "success", "logs": validated_logs}
+@router.post("/upload/legacy")
+async def upload_legacy_file(file: UploadFile = File(...)):
+    contents = await file.read()
+    path = ingestion_service.upload_file(contents, file.filename, file_type="legacy_logs")
+    return {"status": "uploaded", "path": path}
 
 
 

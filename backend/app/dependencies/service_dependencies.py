@@ -3,6 +3,7 @@ from grpc import services
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
+from services.log_ingestion_service import LogIngestionService
 from services.log_enrichment_service import LogEnrichmentService
 from ai.llm.ai_client import AiClient
 from core.config import settings
@@ -36,3 +37,10 @@ def get_legacy_log_service() -> LegacyLogService:
 
 def get_legacy_log_ai_service() -> LegacyLogAiService:
     return LegacyLogAiService(ai_client)
+
+
+log_ingestion_service = LogIngestionService(settings.gcp_project_id, settings.gcp_bucket)
+
+# Dependency injection in FastAPI
+def get_log_ingestion_service() -> LogIngestionService:
+    return log_ingestion_service
