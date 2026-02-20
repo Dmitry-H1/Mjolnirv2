@@ -1,4 +1,4 @@
-from ai.ai_client import AiClient
+from ai.llm.ai_client import AiClient
 from typing import List, Dict, Any
 import json
 
