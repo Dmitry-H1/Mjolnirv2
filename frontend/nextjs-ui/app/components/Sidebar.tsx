@@ -5,7 +5,11 @@ import { usePathname } from 'next/navigation'
 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname()
-  const isActive = pathname === href
+
+  const isActive =
+    href === '/'
+      ? pathname === '/'
+      : pathname.startsWith(href)
 
   return (
     <Link
@@ -31,7 +35,6 @@ export default function Sidebar() {
       <nav className="p-4 space-y-2 text-sm">
         <NavLink href="/" label="Dashboard" />
         <NavLink href="/logs" label="Logs" />
-        <NavLink href="/incidents" label="Incidents" />
       </nav>
     </aside>
   )

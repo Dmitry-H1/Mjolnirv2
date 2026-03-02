@@ -2,45 +2,43 @@
 
 import { useEffect, useState } from 'react'
 import { LogRow } from '../types/log'
+import { LogDetailRow } from '../types/log'
+import Link from 'next/dist/client/link'
 
-function formatTime(value: any) {
-  if (!value) return ''
+function formatTime(ts: any) {
+  if (!ts) return '—'
 
-  // If it's already a Date
-  if (value instanceof Date) {
-    return value.toISOString().split('T')[1].slice(0, 8)
-  }
+  const raw =
+    typeof ts === 'string'
+      ? ts
+      : typeof ts === 'object' && ts.value
+      ? ts.value
+      : null
 
-  
-  if (typeof value === 'string') {
-    const normalized = value
-      .replace(' UTC', 'Z')
-      .replace(' ', 'T')
+  if (!raw) return '—'
 
-    const date = new Date(normalized)
-
-    if (isNaN(date.getTime())) return ''
-
-    return date.toISOString().split('T')[1].slice(0, 8)
-  }
-
-  return ''
+  return new Date(raw).toLocaleString()
 }
 
 export default function LogsPage() {
-  const [logs, setLogs] = useState<LogRow[]>([])
   const [loading, setLoading] = useState(true)
   const [severityFilter, setSeverityFilter] = useState('ALL')
+  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set())
+  const [logs, setLogs] = useState<LogDetailRow[]>([])
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  
 
-  useEffect(() => { 
-    fetch('/api/logs') 
-      .then(res => res.json()) 
-      .then(data => { 
-        setLogs(data.rows)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
-  }, [])
+  useEffect(() => {
+  fetch('/api/logs')
+    .then(res => res.json())
+    .then(data => {
+      setLogs(Array.isArray(data.rows) ? data.rows : [])
+      setCursor(data.nextCursor ?? null)
+      setLoading(false)
+    })
+    .catch(() => setLoading(false))
+}, [])
 
   if (loading) {
     return (
@@ -53,6 +51,26 @@ export default function LogsPage() {
   const filtered = logs.filter(
     l => severityFilter === 'ALL' || l.severity === severityFilter
   )
+  
+  const toggleRow = (index: number) => {
+    setExpandedRows(prev => {
+      const next = new Set(prev)
+      if (next.has(index)) next.delete(index)
+      else next.add(index)
+      return next
+    })
+  }
+  const loadMore = async () => {
+    if (!cursor) return
+    setLoadingMore(true)
+
+    const res = await fetch(`/api/logs?cursor=${encodeURIComponent(cursor)}`)
+    const data = await res.json()
+
+    setLogs(prev => [...prev, ...(data.rows || [])])
+    setCursor(data.nextCursor)
+    setLoadingMore(false)
+  }
 
   return (
     
@@ -60,35 +78,51 @@ export default function LogsPage() {
       <h1 className="text-2xl font-semibold mb-6">System Logs</h1>
 
       {/* Filter Bar */}
-      <div className="mb-6 flex items-center gap-6 bg-white p-4 rounded-lg border shadow-sm">
-        <label className="text-sm font-medium text-slate-700">
-          Severity
-          <select
-            className="ml-2 rounded-md border-slate-300 text-sm focus:ring-2 focus:ring-slate-400"
-            onChange={(e) => setSeverityFilter(e.target.value)}
-          >
-            <option value="ALL">All</option>
-            <option value="INFO">Info</option>
-            <option value="WARN">Warn</option>
-            <option value="ERROR">Error</option>
-          </select>
-        </label>
+      <div className="mb-6 flex items-center justify-between bg-white p-4 rounded-lg border shadow-sm">
+  
+        {/* LEFT: Filters */}
+        <div className="flex items-center gap-6">
+          <label className="text-sm font-medium text-slate-700">
+            Severity
+            <select
+              className="ml-2 rounded-md border-slate-300 text-sm focus:ring-2 focus:ring-slate-400"
+              onChange={(e) => setSeverityFilter(e.target.value)}
+            >
+              <option value="ALL">All</option>
+              <option value="INFO">Info</option>
+              <option value="WARN">Warn</option>
+              <option value="ERROR">Error</option>
+            </select>
+          </label>
+        </div>
 
-        <span className="text-sm text-slate-500">
-          {filtered.length} logs
-        </span>
+        {/* RIGHT: Count + Button */}
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-slate-500">
+            {filtered.length} logs
+          </span>
+
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="px-4 py-2 rounded-lg border bg-white hover:bg-slate-50 text-sm shadow-sm"
+          >
+            {loadingMore ? 'Loading…' : 'Load more'}
+          </button>
+        </div>
       </div>
 
       {/* Table */}
       <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-sm table-fixed">
           <thead className="bg-slate-100 border-b">
             <tr>
-              <th className="px-4 py-3 font-semibold">Time</th>
-              <th className="px-4 py-3 font-semibold">Service</th>
-              <th className="px-4 py-3 font-semibold">Severity</th>
-              <th className="px-4 py-3 font-semibold">Message</th>
-              <th className="px-4 py-3 font-semibold text-right">Anomaly</th>
+              <th className="px-4 py-3 font-semibold w-2/12">Time</th>
+              <th className="px-4 py-3 font-semibold w-2/12">Service</th>
+              <th className="px-4 py-3 font-semibold w-1/12">Severity</th>
+              <th className="px-4 py-3 font-semibold w-5/12">Message</th>
+              <th className="px-4 py-3 font-semibold w-1/12">Anomaly</th>
+              <th className="px-4 py-3 font-semibold w-1/12">Details</th>
             </tr>
           </thead>
 
@@ -112,7 +146,7 @@ export default function LogsPage() {
                     {formatTime(log.event_time)}
                   </td>
 
-                  <td className="px-4 py-3 font-medium">
+                  <td className="px-4 py-3 font-medium max-w-[12rem] truncate">
                     {log.service}
                   </td>
 
@@ -120,8 +154,24 @@ export default function LogsPage() {
                     {sev}
                   </td>
 
-                  <td className="px-4 py-3 text-slate-700">
-                    {log.normalized_message}
+                  <td className="px-4 py-3 text-slate-700 max-w-[28rem]">
+                    <div
+                      className={`cursor-pointer ${
+                        expandedRows.has(i)
+                          ? 'whitespace-normal'
+                          : 'truncate'
+                      }`}
+                      onClick={() => toggleRow(i)}
+                      title="Click to expand"
+                    >
+                      {log.normalized_message || log.message}
+                    </div>
+
+                    {!expandedRows.has(i) && (
+                      <div className="text-xs text-slate-400 mt-1">
+                        Click to expand
+                      </div>
+                    )}
                   </td>
                   
                   <td
@@ -133,15 +183,35 @@ export default function LogsPage() {
                         : 'text-slate-500'
                       }`}
                   >
-                    {log.anomaly_score.toFixed(2)}
+                    {log.anomaly_score != null
+                      ? log.anomaly_score.toFixed(2)
+                      : '—'}
+                  </td>
+                  <td>
+                    <Link href={`/logs/${log.id}`} className="text-end">
+                      View
+                    </Link>
                   </td>
                 </tr>
               )
             })}
           </tbody>
 
-        </table>
+        </table> 
         
+      </div>
+      <div className="flex justify-center mt-6">
+        {cursor ? (
+          <button
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="px-4 py-2 rounded-lg border bg-white hover:bg-slate-50 text-sm shadow-sm"
+          >
+            {loadingMore ? 'Loading…' : 'Load more'}
+          </button>
+        ) : (
+          <span className="text-slate-400 text-sm">End of logs</span>
+        )}
       </div>
     </div>
   )
