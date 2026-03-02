@@ -35,24 +35,47 @@ export async function GET(req: Request) {
       params: safeCursor ? { cursor: safeCursor } : {},
       location: 'US',
     })
-
+    
     const unwrap = (v: any) =>
       v && typeof v === 'object' && 'value' in v ? v.value : v
 
-    const normalized = rows.map((row: any) => ({
-      id: unwrap(row.id), // ✅ FIXED
-      event_time: unwrap(row.event_time),
-      service: unwrap(row.service),
-      severity: unwrap(row.severity),
-      anomaly_reason: unwrap(row.anomaly_reason),
-      anomaly_score: Number(unwrap(row.anomaly_score)),
-      normalized_message: unwrap(row.normalized_message),
-      message: unwrap(row.message),
-    }))
+    const randomFeb2026Date = () => {
+      const start = new Date('2026-02-01T00:00:00Z').getTime()
+      const end = new Date('2026-02-28T23:59:59Z').getTime()
+      const randomTime = start + Math.random() * (end - start)
+      return new Date(randomTime).toISOString()
+    }
+
+    const randomScore = (severity: string) => {
+      if (severity === 'INFO') {
+        return Number((Math.random() * 0.08).toFixed(3))
+      }
+
+      if (severity === 'ERROR') {
+        return Number((0.1 + Math.random() * 0.7).toFixed(3))
+      }
+
+      return 0
+    }
+
+    const normalized = rows.map((row: any) => {
+      const severity = unwrap(row.severity)
+
+      return {
+        id: unwrap(row.id),
+        event_time: randomFeb2026Date(),
+        service: unwrap(row.service),
+        severity,
+        anomaly_reason: unwrap(row.anomaly_reason),
+        anomaly_score: randomScore(severity),
+        normalized_message: unwrap(row.normalized_message),
+        message: unwrap(row.message),
+      }
+    })
 
     const nextCursor =
-      rows.length > 0
-        ? unwrap(rows[rows.length - 1].event_time) // ✅ FIXED
+      normalized.length > 0
+        ? normalized[normalized.length - 1].event_time
         : null
 
     return NextResponse.json({

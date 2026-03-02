@@ -16,8 +16,9 @@ export default function Home() {
         const json = await res.json();
 
         setData({
-        countSeries: json.countSeries,
-        scoreSeries: json.scoreSeries
+          countSeries: json.countSeries,
+          scoreSeries: json.scoreSeries,
+          sourceObjectSeries: json.sourceObjectSeries
         });
 
       } catch (err) {
@@ -64,6 +65,31 @@ export default function Home() {
     data: data?.scoreSeries || [] 
   }];
 
+  // --- CHART 3: SOURCE OBJECT BAR GRAPH ---
+  const sourceOptions: any = {
+    chart: { id: 'source-chart', type: 'bar' },
+    title: { text: 'Incidents by Source Object' },
+    xaxis: {
+      categories: data?.sourceObjectSeries?.categories || [],
+      labels: { rotate: -30 }
+    },
+    yaxis: {
+      title: { text: 'Log Count' }
+    },
+    colors: ['#10B981'], // green
+    plotOptions: {
+      bar: {
+        borderRadius: 4,
+        columnWidth: '60%'
+      }
+    }
+  };
+
+  const sourceSeries = [{
+    name: "Logs",
+    data: data?.sourceObjectSeries?.data || []
+  }];
+
   if (loading) return <div className="p-8">Loading Dashboard...</div>;
 
   return (
@@ -79,6 +105,10 @@ export default function Home() {
 
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
           <Chart options={severityOptions} series={severitySeries} type="scatter" height={300} />
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+          <Chart options={sourceOptions} series={sourceSeries} type="bar" height={350} />
         </div>
       </div>
     </main>
