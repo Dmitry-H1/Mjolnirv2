@@ -7,7 +7,7 @@ from google.cloud import storage
 from google.api_core.exceptions import ServiceUnavailable, InternalServerError
 
 from services.legacy_log_service import LegacyLogService
-from dependencies.service_dependencies import get_legacy_log_service, get_log_service
+from backend.app.dependencies.dependencies import get_legacy_log_service, get_log_service
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")
 
@@ -77,7 +77,7 @@ def callback(message: pubsub_v1.subscriber.message.Message):
             print("Acknowledged message (permanent failure).")
         else:
             # Transient failures → nack
-            message.nack()
+            message.ack()
             print("NACKed message (transient error, will retry).")
 
 subscriber.subscribe(subscription_path, callback=callback)
