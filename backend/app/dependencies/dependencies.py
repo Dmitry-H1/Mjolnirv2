@@ -1,12 +1,14 @@
-from fastapi import Depends
-from grpc import services
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
+from services.metrics_service import MetricsService
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
 from services.log_ingestion_service import LogIngestionService
 from services.log_enrichment_service import LogEnrichmentService
 from ai.llm.ai_client import AiClient
 from core.config import settings
+from google.cloud import bigquery
+from repositories.log_repository import LogRepository
+from services.log_query_service import LogQueryService
 
 # Shared AI client (created once)
 ai_client = AiClient(
@@ -44,3 +46,23 @@ log_ingestion_service = LogIngestionService(settings.gcp_project_id, settings.gc
 # Dependency injection in FastAPI
 def get_log_ingestion_service() -> LogIngestionService:
     return log_ingestion_service
+
+
+# BigQuery stack
+bigquery_client = bigquery.Client()
+
+log_repository = LogRepository(
+    bigquery_client,
+    settings.gcp_project_id,
+    settings.bq_dataset,
+    settings.bq_table,
+)
+
+log_query_service = LogQueryService(log_repository)
+metrics_service = MetricsService(log_repository)
+
+def get_log_query_service():
+    return log_query_service
+
+def get_metrics_service():
+    return metrics_service

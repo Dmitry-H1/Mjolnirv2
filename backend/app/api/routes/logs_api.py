@@ -1,13 +1,14 @@
-from fastapi import APIRouter, UploadFile, Depends, File
+from fastapi import APIRouter, UploadFile, Depends, File, HTTPException
 from typing import List, Union
 from schemas.raw_log import RawLogSchema
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
 from services.log_enrichment_service import LogEnrichmentService
-from dependencies.service_dependencies import get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
+from dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
 from typing import Annotated
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
 from core.config import settings
+from services.log_query_service import LogQueryService
 
 router = APIRouter()
 ingestion_service = get_log_ingestion_service()
@@ -44,17 +45,26 @@ async def upload_legacy_file(file: UploadFile = File(...)):
     return {"status": "uploaded", "path": path}
 
 
+@router.get("")
+def get_logs(cursor: str | None = None,
+             service: LogQueryService = Depends(get_log_query_service)):
 
-'''@router.post("/ai")
-async def extraxt_with_ai(
-    service: Annotated[LegacyLogAiService, Depends(get_legacy_log_ai_service)],
-    file: UploadFile = File(..., description="The log file to upload")
+    rows, next_cursor = service.get_logs(cursor)
+
+    return {
+        "rows": rows,
+        "nextCursor": next_cursor
+    }
+
+@router.get("/{log_id}")
+def get_log_by_id(
+    log_id: str,
+    service: LogQueryService = Depends(get_log_query_service)
 ):
-    
-    
-    content = await file.read()
-    decoded = content.decode("utf-8", errors="ignore")
-    lines = [line for line in decoded.splitlines() if line.strip()]
 
-    return service.extract_structure(lines)'''
-    
+    log = service.get_log_by_id(log_id)
+
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+
+    return log
