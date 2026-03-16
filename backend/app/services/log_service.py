@@ -31,6 +31,8 @@ class LogService:
 
     def parse_logs_from_file(self, content: bytes, filename: str) -> List[RawLogSchema]:
 
+        print(f"PARSING RAW LOG FILE {filename}")
+
         ext = filename.split(".")[-1].lower()
         if ext not in self.allowed_types:
             raise ValueError(f"Unsupported file type: {ext}")

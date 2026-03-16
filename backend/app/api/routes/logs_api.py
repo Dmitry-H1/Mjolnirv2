@@ -1,13 +1,18 @@
-from fastapi import APIRouter, UploadFile, Depends, File
+from fastapi import APIRouter, UploadFile, Depends, File, HTTPException
 from typing import List, Union
 from schemas.raw_log import RawLogSchema
 from services.log_service import LogService
 from services.legacy_log_service import LegacyLogService
-from dependencies.service_dependencies import get_legacy_log_ai_service, get_log_service, get_legacy_log_service
+from services.log_enrichment_service import LogEnrichmentService
+from dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
 from typing import Annotated
-from ai.legacy_log_ai_service import LegacyLogAiService
+from ai.llm.legacy_log_ai_service import LegacyLogAiService
+from core.config import settings
+from services.log_query_service import LogQueryService
 
 router = APIRouter()
+ingestion_service = get_log_ingestion_service()
+
 
 # Endpoint for direct log ingestion
 @router.post("/ingest")
@@ -21,64 +26,45 @@ async def ingest_logs(
 
     validated_logs = log_service.parse_logs(logs)
 
-    for log in validated_logs:
-        print(f"[{log.timestamp}]: {log.message}")
+    ingestion_service.publish_logs(validated_logs, settings.raw_logs_topic_id)
 
     return {"status": "success", "count": len(validated_logs)}
 
 
-# Endpoint for file uploads
 @router.post("/upload")
-async def upload_logs(
-    log_service: Annotated[LogService, Depends(get_log_service)],
-    file: UploadFile = File(..., description="The log file to upload")
-):
-    print(file.filename)
-    # Read the file contents
+async def upload_logs(file: UploadFile = File(...)):
     contents = await file.read()
-    
-    try:
-        validated_logs = log_service.parse_logs_from_file(contents, file.filename)
-    except ValueError as e:
-        return {"error": str(e)}
-
-    for log in validated_logs:
-        print(f"[{log.timestamp}]: {log.message}")
-
-    return {"status": "success", "count": len(validated_logs)}
+    path = ingestion_service.upload_file(contents, file.filename, file_type="raw_logs")
+    return {"status": "uploaded", "path": path}
 
 
-# legacy file with logs
 @router.post("/upload/legacy")
-async def upload_legacy_file(
-    legacy_log_service: Annotated[LegacyLogService, Depends(get_legacy_log_service)],
-    file: UploadFile = File(..., description="Legacy log file to upload")
-):
-    """
-    Upload a legacy log file and parse it into the new RawLogSchema.
-    """
+async def upload_legacy_file(file: UploadFile = File(...)):
     contents = await file.read()
-    parsed_dicts = legacy_log_service.parse_file(contents, file.filename)
-    validated_logs = legacy_log_service.to_raw_schema(parsed_dicts)
-
-    #for log in validated_logs:
-    #    print(f"[{log.timestamp}]: {log.message}")
-
-    return {"status": "success", "logs": validated_logs}
+    path = ingestion_service.upload_file(contents, file.filename, file_type="legacy_logs")
+    return {"status": "uploaded", "path": path}
 
 
+@router.get("")
+def get_logs(cursor: str | None = None,
+             service: LogQueryService = Depends(get_log_query_service)):
 
-'''@router.post("/ai")
-async def extraxt_with_ai(
-    service: Annotated[LegacyLogAiService, Depends(get_legacy_log_ai_service)],
-    file: UploadFile = File(..., description="The log file to upload")
+    rows, next_cursor = service.get_logs(cursor)
+
+    return {
+        "rows": rows,
+        "nextCursor": next_cursor
+    }
+
+@router.get("/{log_id}")
+def get_log_by_id(
+    log_id: str,
+    service: LogQueryService = Depends(get_log_query_service)
 ):
-    
-    
-    content = await file.read()
-    decoded = content.decode("utf-8", errors="ignore")
-    lines = [line for line in decoded.splitlines() if line.strip()]
 
-    return service.extract_structure(lines)'''
-    
+    log = service.get_log_by_id(log_id)
 
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+
+    return log
