@@ -1,4 +1,32 @@
 import { NextResponse } from 'next/server'
+
+export async function GET(
+  req: Request,
+  { params }: { params: { id: string } }
+) {
+  const backend = 'http://127.0.0.1:8000'
+  const id = params.id
+
+  if (!id) {
+    return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+  }
+
+  const res = await fetch(`${backend}/logs/${id}`)
+
+  if (!res.ok) {
+    return NextResponse.json(
+      { error: 'Failed to fetch log from backend' },
+      { status: res.status }
+    )
+  }
+
+  const data = await res.json()
+  return NextResponse.json(data)
+}
+
+/* Old code with querying in frontend:
+
+import { NextResponse } from 'next/server'
 import { BigQuery } from '@google-cloud/bigquery'
 
 const bigquery = new BigQuery()
@@ -64,3 +92,5 @@ export async function GET(
     )
   }
 }
+
+*/

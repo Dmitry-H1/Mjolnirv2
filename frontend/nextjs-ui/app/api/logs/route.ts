@@ -1,4 +1,29 @@
 import { NextResponse } from 'next/server'
+
+export async function GET(req: Request) {
+  const backend = 'http://127.0.0.1:8000'
+
+  const url = new URL(req.url)
+  const cursor = url.searchParams.get('cursor')
+
+  const target = `${backend}/logs${cursor ? `?cursor=${cursor}` : ''}`
+
+  const res = await fetch(target)
+
+  if (!res.ok) {
+    return NextResponse.json(
+      { error: 'Backend failed to fetch logs' },
+      { status: 500 }
+    )
+  }
+
+  const data = await res.json()
+  return NextResponse.json(data)
+}
+
+/* Old code with querying in frontend: 
+
+import { NextResponse } from 'next/server'
 import { BigQuery } from '@google-cloud/bigquery'
 
 const bigquery = new BigQuery()
@@ -90,3 +115,5 @@ export async function GET(req: Request) {
     )
   }
 }
+
+*/

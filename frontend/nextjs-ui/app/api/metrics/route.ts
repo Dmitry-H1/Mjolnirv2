@@ -1,4 +1,24 @@
 import { NextResponse } from 'next/server'
+
+export async function GET() {
+  const backend = 'http://127.0.0.1:8000'
+
+  const res = await fetch(`${backend}/metrics`)
+
+  if (!res.ok) {
+    return NextResponse.json(
+      { error: 'Backend failed to fetch metrics' },
+      { status: 500 }
+    )
+  }
+
+  const data = await res.json()
+  return NextResponse.json(data)
+}
+
+/* Potential fix after moving querying to backend:
+
+import { NextResponse } from 'next/server'
 import { BigQuery } from '@google-cloud/bigquery'
 
 const bigquery = new BigQuery()
@@ -103,3 +123,5 @@ export async function GET() {
     )
   }
 }
+
+*/

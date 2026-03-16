@@ -5,6 +5,10 @@ import { LogRow } from '../types/log'
 import { LogDetailRow } from '../types/log'
 import Link from 'next/dist/client/link'
 
+/* Suggested minor link change, not very important
+import Link from 'next/link' 
+*/
+
 function formatTime(ts: any) {
   if (!ts) return '—'
 
