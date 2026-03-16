@@ -16,7 +16,7 @@ export async function GET() {
   return NextResponse.json(data)
 }
 
-/* Potential fix after moving querying to backend:
+/* Old code with querying in frontend:
 
 import { NextResponse } from 'next/server'
 import { BigQuery } from '@google-cloud/bigquery'
