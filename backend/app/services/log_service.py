@@ -58,3 +58,9 @@ class LogService:
             log_dicts = [json.loads(line) for line in decoded.splitlines() if line.strip()]
 
         return self.parse_logs(log_dicts)
+    
+
+    def attach_user_to_logs(self, logs: List[RawLogSchema], user_id: str):
+        for log in logs:
+            log.user_id = user_id
+        return logs

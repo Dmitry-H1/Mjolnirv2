@@ -43,6 +43,7 @@ class LogEnrichmentService:
 
         enriched.service = raw.service
         enriched.trace_id = raw.trace_id
+        enriched.user_id = raw.user_id
 
         # Normalize message
         enriched.normalized_message = self.normalize_message(raw.message)

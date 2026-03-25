@@ -9,6 +9,8 @@ from typing import Annotated
 from ai.llm.legacy_log_ai_service import LegacyLogAiService
 from core.config import settings
 from services.log_query_service import LogQueryService
+from dependencies.auth_dependencies import get_current_user
+from models.user import User
 
 router = APIRouter()
 ingestion_service = get_log_ingestion_service()
@@ -18,13 +20,15 @@ ingestion_service = get_log_ingestion_service()
 @router.post("/ingest")
 async def ingest_logs(
     logs: Union[RawLogSchema, List[RawLogSchema], List[dict]],
-    log_service: Annotated[LogService, Depends(get_log_service)]
+    log_service: Annotated[LogService, Depends(get_log_service)],
+    user: User = Depends(get_current_user)
 ):
     # Normalize single log into a list
     if isinstance(logs, (RawLogSchema, dict)):
         logs = [logs]
 
     validated_logs = log_service.parse_logs(logs)
+    validated_logs = log_service.attach_user_to_logs(validated_logs, user.id)
 
     ingestion_service.publish_logs(validated_logs, settings.raw_logs_topic_id)
 
@@ -32,16 +36,16 @@ async def ingest_logs(
 
 
 @router.post("/upload")
-async def upload_logs(file: UploadFile = File(...)):
+async def upload_logs(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     contents = await file.read()
-    path = ingestion_service.upload_file(contents, file.filename, file_type="raw_logs")
+    path = ingestion_service.upload_file(contents, file.filename, file_type="raw_logs", user_id=user.id)
     return {"status": "uploaded", "path": path}
 
 
 @router.post("/upload/legacy")
-async def upload_legacy_file(file: UploadFile = File(...)):
+async def upload_legacy_file(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     contents = await file.read()
-    path = ingestion_service.upload_file(contents, file.filename, file_type="legacy_logs")
+    path = ingestion_service.upload_file(contents, file.filename, file_type="legacy_logs", user_id=user.id)
     return {"status": "uploaded", "path": path}
 
 

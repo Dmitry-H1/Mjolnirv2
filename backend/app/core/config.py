@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     raw_logs_sub_id: str
     bq_dataset: str
     bq_table: str
+    bq_users_table: str
+
+    jwt_secret_key: str
+    jwt_algorithm: str
+    jwt_access_expire_min: str
+    jwt_refresh_expire_days: str
     class Config:
         env_file = BASE_DIR / ".env"  
 
