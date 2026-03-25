@@ -6,6 +6,7 @@ from services.jwt_service import JwtService
 
 from models.user import User
 from dependencies.auth_dependencies import get_current_user, get_auth_service
+from core.config import settings
 
 router = APIRouter()
 
@@ -40,7 +41,7 @@ def login(response: Response, form_data: UserLogin, auth_service: AuthService = 
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        max_age=60 * 60 * 24 * 7,  # 7 days
+        max_age=settings.jwt_refresh_expire_days,
         samesite="strict"
     )
 

@@ -50,23 +50,26 @@ async def upload_legacy_file(file: UploadFile = File(...), user: User = Depends(
 
 
 @router.get("")
-def get_logs(cursor: str | None = None,
-             service: LogQueryService = Depends(get_log_query_service)):
-
-    rows, next_cursor = service.get_logs(cursor)
+def get_logs(
+    cursor: str | None = None,
+    service: LogQueryService = Depends(get_log_query_service),
+    user: User = Depends(get_current_user)
+):
+    rows, next_cursor = service.get_logs(cursor, user.id)
 
     return {
         "rows": rows,
         "nextCursor": next_cursor
     }
 
+
 @router.get("/{log_id}")
 def get_log_by_id(
     log_id: str,
-    service: LogQueryService = Depends(get_log_query_service)
+    service: LogQueryService = Depends(get_log_query_service),
+    user: User = Depends(get_current_user)
 ):
-
-    log = service.get_log_by_id(log_id)
+    log = service.get_log_by_id(log_id, user.id)
 
     if not log:
         raise HTTPException(status_code=404, detail="Log not found")
