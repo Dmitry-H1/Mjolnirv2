@@ -14,3 +14,4 @@ class RawLogSchema(BaseModel):
     trace_id: Optional[str] = Field(None, description="Optional trace ID for request tracing")
     latency_ms: Optional[int] = Field(None, description="Optional latency in milliseconds")
     raw_payload: Optional[Any] = Field(None, description="Full original log or extra fields")
+    user_id: Optional[str] = Field(None)
