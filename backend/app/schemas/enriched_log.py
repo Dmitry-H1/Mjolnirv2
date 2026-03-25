@@ -27,3 +27,5 @@ class EnrichedLog(BaseModel):
     source_object: Optional[str] = Field(default=None)
     
     entities: Optional[Dict[str, Any]] = Field(default=None)
+
+    user_id: Optional[str] = Field(None)

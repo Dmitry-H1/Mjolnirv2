@@ -4,10 +4,9 @@ import time
 import uuid
 from google.cloud import pubsub_v1
 from google.cloud import storage
-from google.api_core.exceptions import ServiceUnavailable, InternalServerError
 
 from services.legacy_log_service import LegacyLogService
-from backend.app.dependencies.dependencies import get_legacy_log_service, get_log_service
+from dependencies.dependencies import get_legacy_log_service, get_log_service
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")
 
@@ -28,16 +27,29 @@ def process_gcs_event(event: dict):
     bucket_name = event["bucket"]
     file_name = event["name"]
 
+    # Extract the second part of the path (file type)
+    parts = file_name.split("/")
+
+    file_type = parts[1]  # e.g., 'raw_logs' or 'legacy_logs'
+
+    # Extract user_id from first part
+    user_part = parts[0]
+    if not user_part.startswith("user_"):
+        raise ValueError(f"Invalid user folder: {user_part}")
+    user_id = str(uuid.UUID(user_part.replace("user_", "")))
+
+
     blob = storage_client.bucket(bucket_name).blob(file_name)
     content = blob.download_as_bytes()
 
     # detect type by folder
-    if file_name.startswith("legacy_logs/"):
+    if file_type == "legacy_logs":
         parsed_logs = legacy_parser.parse_file(content, file_name)
         raw_logs = legacy_parser.to_raw_schema(parsed_logs)
-    elif file_name.startswith("raw_logs/"):
+    elif file_type == "raw_logs":
         raw_logs = raw_parser.parse_logs_from_file(content, file_name)
 
+    raw_logs = raw_parser.attach_user_to_logs(raw_logs, user_id)
 
     # publish parsed logs into raw-logs-topic
     payload = {

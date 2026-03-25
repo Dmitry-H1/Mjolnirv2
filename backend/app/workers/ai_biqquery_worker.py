@@ -192,6 +192,7 @@ def to_bq_row(enriched_obj, meta: dict, score: float, reason: str) -> dict:
         "source_object": meta.get("object"),
         "model_version": data.get("model_version"),
         "inserted_at": datetime.now(timezone.utc).isoformat(),
+        "user_id": data.get("user_id")
     }
 
 def insert_batch(rows: list[dict]) -> None:
@@ -227,7 +228,7 @@ def callback(message: pubsub_v1.subscriber.message.Message):
                 normalized_message=getattr(enriched_obj, "normalized_message", None),
                 severity=getattr(enriched_obj, "severity", None),
                 latency_ms=latency_ms,
-    )
+            )
 
             rows.append(to_bq_row(enriched_obj, meta, score, reason))
 
