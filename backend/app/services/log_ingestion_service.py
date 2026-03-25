@@ -2,6 +2,7 @@ from google.cloud import pubsub_v1, storage
 import os
 import uuid
 import json
+from typing import List
 
 from schemas.raw_log import RawLogSchema
 
@@ -21,9 +22,10 @@ class LogIngestionService:
         }
         self.publisher.publish(topic_path, json.dumps(payload).encode("utf-8")).result()
 
-    def upload_file(self, file_bytes: bytes, filename: str, file_type: str) -> str:
-        blob_name = f"{file_type}/{uuid.uuid4()}_{filename}"
+    def upload_file(self, file_bytes: bytes, filename: str, file_type: str, user_id: uuid.UUID) -> str:
+        blob_name = f"user_{user_id}/{file_type}/{uuid.uuid4()}_{filename}"
         blob = self.bucket.blob(blob_name)
         blob.upload_from_string(file_bytes)
         return blob_name
-
+    
+    
