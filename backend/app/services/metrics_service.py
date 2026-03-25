@@ -1,5 +1,6 @@
 import random
 from datetime import datetime
+from uuid import UUID
 
 from repositories.log_repository import LogRepository
 
@@ -10,12 +11,10 @@ class MetricsService:
         self.repository = repository
 
 
-    def get_metrics(self):
+    def get_metrics(self, user_id: UUID):
 
-        print("GETTIINGGNGGN")
-
-        rows = self.repository.get_metrics_rows()
-        source_rows = self.repository.get_source_object_counts()
+        rows = self.repository.get_metrics_rows(str(user_id))
+        source_rows = self.repository.get_source_object_counts(str(user_id))
 
         start = datetime(2026, 2, 1).timestamp() * 1000
         end = datetime(2026, 2, 28, 23, 59, 59).timestamp() * 1000

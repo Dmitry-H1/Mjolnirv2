@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from repositories.log_repository import LogRepository
 from utils.time import to_iso_z
 
@@ -8,9 +10,8 @@ class LogQueryService:
         self.repository = repository
 
 
-    def get_logs(self, cursor: str | None):
-
-        logs = self.repository.get_logs(cursor)
+    def get_logs(self, cursor: str | None, user_id: UUID):
+        logs = self.repository.get_logs(cursor, str(user_id))
 
         for log in logs:
             log["event_time"] = to_iso_z(log["event_time"])
@@ -19,15 +20,14 @@ class LogQueryService:
 
         return logs, next_cursor
     
-    
-    def get_log_by_id(self, log_id: str):
 
-        log = self.repository.get_log_by_id(log_id)
-
-        log["event_time"] = to_iso_z(log["event_time"])
+    def get_log_by_id(self, log_id: str, user_id: UUID):
+        log = self.repository.get_log_by_id(log_id, str(user_id))
 
         if not log:
             return None
+
+        log["event_time"] = to_iso_z(log["event_time"])
 
         return log
     
