@@ -19,7 +19,8 @@ const logIn = async (
       { withCredentials: true }
     );
 
-    localStorage.setItem("access_token", response.data?.jwtToken);
+    localStorage.setItem("access_token", response.data.access_token);
+
     console.log(`Successful authentication of user: ${username}`);
 
     return response.status;
@@ -27,7 +28,6 @@ const logIn = async (
     const error = err as AxiosError;
 
     if (error.response?.status === 401) {
-      console.warn(error.response?.data);
       setError("Wrong Username or Password");
       return error.response?.status;
     }
