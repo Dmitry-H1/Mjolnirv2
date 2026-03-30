@@ -33,7 +33,7 @@ export default function Sidebar() {
       </div>
 
       <nav className="p-4 space-y-2 text-sm">
-        <NavLink href="/" label="Dashboard" />
+        <NavLink href="/dashboard" label="Dashboard" />
         <NavLink href="/logs" label="Logs" />
       </nav>
     </aside>
