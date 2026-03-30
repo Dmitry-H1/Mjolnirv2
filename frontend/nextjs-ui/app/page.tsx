@@ -2,14 +2,31 @@
 
 import dynamic from 'next/dynamic';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 export default function Home() {
+  const router = useRouter();
+
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      router.push("/login");
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [router]);
+
   useEffect(() => { 
+    if (checkingAuth) return; 
+
     async function fetchData() { 
       try { 
         const res = await fetch('/api/metrics');
@@ -29,7 +46,11 @@ export default function Home() {
     }
 
     fetchData();
-  }, []);
+  }, [checkingAuth]);
+
+  if (checkingAuth) return null;
+
+  if (loading) return <div className="p-8">Loading Dashboard...</div>;
 
   // --- CHART 1: INCIDENT VOLUME ---
   const countOptions: any = {
@@ -76,7 +97,7 @@ export default function Home() {
     yaxis: {
       title: { text: 'Log Count' }
     },
-    colors: ['#10B981'], // green
+    colors: ['#10B981'],
     plotOptions: {
       bar: {
         borderRadius: 4,
@@ -89,8 +110,6 @@ export default function Home() {
     name: "Logs",
     data: data?.sourceObjectSeries?.data || []
   }];
-
-  if (loading) return <div className="p-8">Loading Dashboard...</div>;
 
   return (
     <main className="p-8 bg-gray-50 min-h-screen">
