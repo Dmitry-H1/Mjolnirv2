@@ -58,6 +58,7 @@ def to_bq_row(enriched_obj, meta: dict, score: float, reason: str) -> dict:
         "source_object": meta.get("object"),
         "model_version": data.get("model_version"),
         "inserted_at": datetime.now(timezone.utc).isoformat(),
+        "user_id": data.get("user_id")
     }
 
 
