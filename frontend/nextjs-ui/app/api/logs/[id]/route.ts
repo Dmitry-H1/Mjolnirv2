@@ -1,27 +1,33 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import authFetch from "../../authentication/authFetch";
 
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const backend = 'http://127.0.0.1:8000'
-  const id = params.id
+  const id = params.id;
 
   if (!id) {
-    return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  const res = await fetch(`${backend}/logs/${id}`)
+  try {
+    const cookieHeader = cookies().toString();
 
-  if (!res.ok) {
+    const res = await authFetch.get(`/logs/${id}`, {
+      headers: {
+        Cookie: cookieHeader,
+      },
+    });
+
+    return NextResponse.json(res.data);
+  } catch (err: any) {
     return NextResponse.json(
-      { error: 'Failed to fetch log from backend' },
-      { status: res.status }
-    )
+      { error: "Failed to fetch log from backend" },
+      { status: err?.response?.status ?? 500 }
+    );
   }
-
-  const data = await res.json()
-  return NextResponse.json(data)
 }
 
 /* Old code with querying in frontend:

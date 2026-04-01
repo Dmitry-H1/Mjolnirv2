@@ -1,19 +1,24 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import authFetch from "../authentication/authFetch";
 
 export async function GET() {
-  const backend = 'http://127.0.0.1:8000'
+  try {
+    const cookieHeader = cookies().toString();
 
-  const res = await fetch(`${backend}/metrics`)
+    const res = await authFetch.get("/metrics", {
+      headers: {
+        Cookie: cookieHeader,
+      },
+    });
 
-  if (!res.ok) {
+    return NextResponse.json(res.data);
+  } catch (err: any) {
     return NextResponse.json(
-      { error: 'Backend failed to fetch metrics' },
-      { status: 500 }
-    )
+      { error: "Backend failed to fetch metrics" },
+      { status: err?.response?.status ?? 500 }
+    );
   }
-
-  const data = await res.json()
-  return NextResponse.json(data)
 }
 
 /* Old code with querying in frontend:
