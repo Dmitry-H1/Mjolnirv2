@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import authFetch from "../../api/authentication/authFetch";
 
 
 interface LogRow {
@@ -31,14 +32,16 @@ export default function IncidentDetailPage() {
   useEffect(() => {
     if (!incidentId) return
 
-    fetch(`/api/logs/${incidentId}`)
-        .then(res => res.json())
-        .then(data => {
-        setLogs(data ? [data] : [])
+    setLoading(true)  // start loading
+
+    authFetch(`/logs/${incidentId}`)
+      .then(res => {
+        // Axios responses store data in res.data
+        setLogs(res.data ? [res.data] : [])
         setLoading(false)
-        })
-        .catch(() => setLoading(false))
-    }, [incidentId])
+      })
+      .catch(() => setLoading(false))
+  }, [incidentId])
 
   const summary = useMemo(() => {
     if (!logs.length) return null

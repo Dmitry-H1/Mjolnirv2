@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { LogRow } from '../types/log'
 import { LogDetailRow } from '../types/log'
 import Link from 'next/dist/client/link'
+import authFetch from "../api/authentication/authFetch";
+
 
 /* Suggested minor link change, not very important
 import Link from 'next/link' 
@@ -34,15 +36,17 @@ export default function LogsPage() {
   
 
   useEffect(() => {
-  fetch('/api/logs')
-    .then(res => res.json())
-    .then(data => {
-      setLogs(Array.isArray(data.rows) ? data.rows : [])
-      setCursor(data.nextCursor ?? null)
-      setLoading(false)
-    })
-    .catch(() => setLoading(false))
-}, [])
+    setLoading(true) // start loading
+
+    authFetch('/logs')
+      .then(res => {
+        const data = res.data // Axios stores response JSON here
+        setLogs(Array.isArray(data.rows) ? data.rows : [])
+        setCursor(data.nextCursor ?? null)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
 
   if (loading) {
     return (
