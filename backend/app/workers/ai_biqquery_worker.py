@@ -77,7 +77,7 @@ def callback(message: pubsub_v1.subscriber.message.Message):
             "object": payload.get("object"),
         }
 
-        raw_logs = [RawLogSchema(**x) for x in payload["logs"]]
+        raw_logs = [RawLogSchema(**(json.loads(x) if isinstance(x, str) else x)) for x in payload["logs"]]
         enriched_logs = enricher.enrich_logs(raw_logs)
 
         rows: list[dict] = []
