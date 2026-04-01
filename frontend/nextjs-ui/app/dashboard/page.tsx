@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LogoutButton from "../components/LogoutButton";
+import authFetch from "../api/authentication/authFetch";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
@@ -14,7 +15,9 @@ export default function Home() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // ---------------------------
   // AUTH CHECK
+  // ---------------------------
   useEffect(() => {
     const token = localStorage.getItem("access_token");
 
@@ -26,14 +29,19 @@ export default function Home() {
     setCheckingAuth(false);
   }, [router]);
 
-  // FETCH METRICS
+  // ---------------------------
+  // FETCH METRICS (using authFetch)
+  // ---------------------------
   useEffect(() => {
     if (checkingAuth) return;
 
     async function fetchData() {
       try {
-        const res = await fetch("/api/metrics");
-        const json = await res.json();
+        const res = await authFetch.get("/metrics", {
+          withCredentials: true,
+        });
+
+        const json = res.data;
 
         setData({
           countSeries: json.countSeries,
@@ -50,14 +58,20 @@ export default function Home() {
     fetchData();
   }, [checkingAuth]);
 
+  // ---------------------------
+  // LOADING STATES
+  // ---------------------------
   if (checkingAuth) {
-    if (typeof window === "undefined") return null;
     return <div className="p-8">Checking authentication...</div>;
   }
 
-  if (loading) return <div className="p-8">Loading Dashboard...</div>;
+  if (loading) {
+    return <div className="p-8">Loading Dashboard...</div>;
+  }
 
+  // ---------------------------
   // CHART CONFIGS
+  // ---------------------------
   const countOptions: any = {
     chart: { id: "count-chart", type: "line", zoom: { enabled: true } },
     title: { text: "Incident Volume Over Time" },
@@ -111,6 +125,9 @@ export default function Home() {
     },
   ];
 
+  // ---------------------------
+  // RENDER DASHBOARD
+  // ---------------------------
   return (
     <main className="p-8 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
@@ -120,30 +137,15 @@ export default function Home() {
 
       <div className="grid grid-cols-1 gap-8">
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          <Chart
-            options={countOptions}
-            series={countSeries}
-            type="line"
-            height={300}
-          />
+          <Chart options={countOptions} series={countSeries} type="line" height={300} />
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          <Chart
-            options={severityOptions}
-            series={severitySeries}
-            type="scatter"
-            height={300}
-          />
+          <Chart options={severityOptions} series={severitySeries} type="scatter" height={300} />
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          <Chart
-            options={sourceOptions}
-            series={sourceSeries}
-            type="bar"
-            height={350}
-          />
+          <Chart options={sourceOptions} series={sourceSeries} type="bar" height={350} />
         </div>
       </div>
     </main>

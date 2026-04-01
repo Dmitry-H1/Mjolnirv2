@@ -41,8 +41,9 @@ def login(response: Response, form_data: UserLogin, auth_service: AuthService = 
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        max_age=settings.jwt_refresh_expire_days,
-        samesite="strict"
+        max_age=settings.jwt_refresh_expire_days * 24 * 60 * 60,
+        samesite="lax",
+        path="/"
     )
 
     return {"access_token": access_token, "token_type": "Bearer"}

@@ -1,24 +1,28 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import authFetch from "../authentication/authFetch";
 
 export async function GET(req: Request) {
-  const backend = 'http://127.0.0.1:8000'
+  const url = new URL(req.url);
+  const cursor = url.searchParams.get("cursor");
 
-  const url = new URL(req.url)
-  const cursor = url.searchParams.get('cursor')
+  try {
+    const cookieHeader = cookies().toString();
 
-  const target = `${backend}/logs${cursor ? `?cursor=${cursor}` : ''}`
+    const res = await authFetch.get("/logs", {
+      params: cursor ? { cursor } : {},
+      headers: {
+        Cookie: cookieHeader,
+      },
+    });
 
-  const res = await fetch(target)
-
-  if (!res.ok) {
+    return NextResponse.json(res.data);
+  } catch (err: any) {
     return NextResponse.json(
-      { error: 'Backend failed to fetch logs' },
-      { status: 500 }
-    )
+      { error: "Backend failed to fetch logs" },
+      { status: err?.response?.status ?? 500 }
+    );
   }
-
-  const data = await res.json()
-  return NextResponse.json(data)
 }
 
 /* Old code with querying in frontend: 
