@@ -7,10 +7,6 @@ import Link from 'next/dist/client/link'
 import authFetch from "../api/authentication/authFetch";
 
 
-/* Suggested minor link change, not very important
-import Link from 'next/link' 
-*/
-
 function formatTime(ts: any) {
   if (!ts) return '—'
 
@@ -69,15 +65,16 @@ export default function LogsPage() {
     })
   }
   const loadMore = async () => {
-    if (!cursor) return
-    setLoadingMore(true)
+  if (!cursor) return
+  setLoadingMore(true)
 
-    const res = await fetch(`/api/logs?cursor=${encodeURIComponent(cursor)}`)
-    const data = await res.json()
+  const res = await authFetch.get('/logs', {
+    params: { cursor }
+  })
 
-    setLogs(prev => [...prev, ...(data.rows || [])])
-    setCursor(data.nextCursor)
-    setLoadingMore(false)
+  setLogs(prev => [...prev, ...(res.data.rows || [])])
+  setCursor(res.data.nextCursor)
+  setLoadingMore(false)
   }
 
   return (

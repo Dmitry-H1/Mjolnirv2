@@ -35,7 +35,10 @@ export default function Sidebar() {
       <nav className="p-4 space-y-2 text-sm">
         <NavLink href="/dashboard" label="Dashboard" />
         <NavLink href="/logs" label="Logs" />
+        <NavLink href="/upload" label="Upload" />
       </nav>
+
+      
     </aside>
   )
 }

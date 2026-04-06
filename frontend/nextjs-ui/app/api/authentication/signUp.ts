@@ -25,6 +25,9 @@ const signUp = async (
     return response.status;
   } catch (err) {
     const error = err as AxiosError;
+    console.error("Status:", error.response?.status);
+    console.error("Data:", error.response?.data);
+    console.error("Message:", error.message);
 
     if (error.response?.status === 409) {
       setError("Username already exists"); 
