@@ -1,20 +1,8 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/session";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export default async function HomePage() {
+  const user = await getSessionUser();
 
-export default function RootRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-
-    if (token) {
-      router.replace("/dashboard");
-    } else {
-      router.replace("/login");
-    }
-  }, [router]);
-
-  return null;
+  redirect(user ? "/dashboard" : "/login");
 }

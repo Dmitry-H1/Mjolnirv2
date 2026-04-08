@@ -7,31 +7,28 @@ import {
   fetchWithSessionRefresh,
   setAccessCookie,
 } from "@/lib/backend";
-import type { LogListResponse } from "@/lib/contracts";
+import type { SessionUser } from "@/lib/contracts";
 
-export async function GET(request: Request) {
+export async function GET() {
   const cookieStore = cookies();
   const accessToken = cookieStore.get(ACCESS_COOKIE)?.value;
   const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
-  const url = new URL(request.url);
-  const cursor = url.searchParams.get("cursor");
-  const path = cursor ? `/logs?cursor=${encodeURIComponent(cursor)}` : "/logs";
 
-  const result = await fetchWithSessionRefresh<LogListResponse>(path, {
+  if (!accessToken && !refreshToken) {
+    return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  const result = await fetchWithSessionRefresh<SessionUser>("/auth/me", {
     accessToken,
     refreshToken,
   });
 
   if (!result.response.ok || !result.body) {
     const response = NextResponse.json(
-      { error: "Unable to load logs." },
-      { status: result.response.status || 401 }
+      { error: "Not authenticated." },
+      { status: 401 }
     );
-
-    if (result.response.status === 401) {
-      clearSessionCookies(response);
-    }
-
+    clearSessionCookies(response);
     return response;
   }
 
