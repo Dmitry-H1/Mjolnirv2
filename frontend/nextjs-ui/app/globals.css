@@ -1,3 +1,129 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --bg: #f3efe7;
+  --bg-strong: #e6dac6;
+  --surface: rgba(255, 252, 247, 0.82);
+  --surface-strong: #fffaf1;
+  --surface-dark: #221d18;
+  --border: rgba(85, 63, 37, 0.14);
+  --text: #1e1a16;
+  --muted: #62584d;
+  --accent: #9f3b27;
+  --accent-strong: #7d2e1e;
+  --accent-soft: rgba(159, 59, 39, 0.12);
+  --success: #295b3f;
+  --warn: #a36714;
+  --danger: #9e2f2f;
+  --shadow-lg: 0 28px 60px rgba(62, 43, 22, 0.12);
+  --shadow-md: 0 18px 36px rgba(62, 43, 22, 0.08);
+  --font-display: "Avenir Next", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-body: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia,
+    serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(159, 59, 39, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(41, 91, 63, 0.18), transparent 24%),
+    linear-gradient(180deg, #f8f3ea 0%, #f1ebdf 46%, #ebe2d2 100%);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: var(--font-body);
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 251, 244, 0.86), rgba(255, 248, 240, 0.72));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(159, 59, 39, 0.2);
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.section-card {
+  border: 1px solid var(--border);
+  background: rgba(255, 251, 245, 0.88);
+  box-shadow: var(--shadow-md);
+}
+
+.display-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.fade-up {
+  animation: fade-up 0.45s ease-out both;
+}
+
+.fade-up-delay {
+  animation: fade-up 0.7s ease-out both;
+}
+
+.grid-overlay {
+  position: relative;
+}
+
+.grid-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(rgba(88, 66, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 66, 42, 0.04) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 90%);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+}
