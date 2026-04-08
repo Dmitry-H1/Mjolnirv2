@@ -2,7 +2,7 @@ import random
 from datetime import datetime
 from uuid import UUID
 
-from repositories.log_repository import LogRepository
+from app.repositories.log_repository import LogRepository
 
 
 class MetricsService:

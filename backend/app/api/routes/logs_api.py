@@ -1,16 +1,16 @@
 from fastapi import APIRouter, UploadFile, Depends, File, HTTPException
 from typing import List, Union
-from schemas.raw_log import RawLogSchema
-from services.log_service import LogService
-from services.legacy_log_service import LegacyLogService
-from services.log_enrichment_service import LogEnrichmentService
-from dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
+from app.schemas.raw_log import RawLogSchema
+from app.services.log_service import LogService
+from app.services.legacy_log_service import LegacyLogService
+from app.services.log_enrichment_service import LogEnrichmentService
+from app.dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
 from typing import Annotated
-from ai.llm.legacy_log_ai_service import LegacyLogAiService
-from core.config import settings
-from services.log_query_service import LogQueryService
-from dependencies.auth_dependencies import get_current_user
-from models.user import User
+from app.ai.llm.legacy_log_ai_service import LegacyLogAiService
+from app.core.config import settings
+from app.services.log_query_service import LogQueryService
+from app.dependencies.auth_dependencies import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 ingestion_service = get_log_ingestion_service()

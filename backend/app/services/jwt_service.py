@@ -1,8 +1,8 @@
 # auth_service.py
 from datetime import datetime, timedelta, timezone
 from jose import jwt
-from core.config import settings
-from models.user import User
+from app.core.config import settings
+from app.models.user import User
 
 class JwtService:
 

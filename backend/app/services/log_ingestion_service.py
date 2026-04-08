@@ -4,7 +4,7 @@ import uuid
 import json
 from typing import List
 
-from schemas.raw_log import RawLogSchema
+from app.schemas.raw_log import RawLogSchema
 
 
 class LogIngestionService:

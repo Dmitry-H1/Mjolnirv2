@@ -5,9 +5,9 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from sklearn.pipeline import Pipeline
 
-from schemas.raw_log import RawLogSchema
-from schemas.enriched_log import EnrichedLog
-from core.constants import SEVERITY_PATTERNS
+from app.schemas.raw_log import RawLogSchema
+from app.schemas.enriched_log import EnrichedLog
+from app.core.constants import SEVERITY_PATTERNS
 
 
 class LogEnrichmentService:

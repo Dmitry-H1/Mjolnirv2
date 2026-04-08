@@ -1,14 +1,14 @@
-from ai.llm.legacy_log_ai_service import LegacyLogAiService
-from services.metrics_service import MetricsService
-from services.log_service import LogService
-from services.legacy_log_service import LegacyLogService
-from services.log_ingestion_service import LogIngestionService
-from services.log_enrichment_service import LogEnrichmentService
-from ai.llm.ai_client import AiClient
-from core.config import settings
+from app.ai.llm.legacy_log_ai_service import LegacyLogAiService
+from app.services.metrics_service import MetricsService
+from app.services.log_service import LogService
+from app.services.legacy_log_service import LegacyLogService
+from app.services.log_ingestion_service import LogIngestionService
+from app.services.log_enrichment_service import LogEnrichmentService
+from app.ai.llm.ai_client import AiClient
+from app.core.config import settings
 from google.cloud import bigquery
-from repositories.log_repository import LogRepository
-from services.log_query_service import LogQueryService
+from app.repositories.log_repository import LogRepository
+from app.services.log_query_service import LogQueryService
 
 # Shared AI client (created once)
 ai_client = AiClient(

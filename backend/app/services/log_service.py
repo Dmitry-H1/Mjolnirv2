@@ -3,7 +3,7 @@ import json
 from typing import List, Dict, Union
 from datetime import datetime
 from pydantic import ValidationError
-from schemas.raw_log import RawLogSchema
+from app.schemas.raw_log import RawLogSchema
 
 
 class LogService:

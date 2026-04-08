@@ -5,8 +5,8 @@ import uuid
 from google.cloud import pubsub_v1
 from google.cloud import storage
 
-from services.legacy_log_service import LegacyLogService
-from dependencies.dependencies import get_legacy_log_service, get_log_service
+from app.services.legacy_log_service import LegacyLogService
+from app.dependencies.dependencies import get_legacy_log_service, get_log_service
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")
 

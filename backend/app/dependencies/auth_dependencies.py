@@ -1,12 +1,12 @@
-from repositories.user_repository import UserRepository
-from services.user_service import UserService
-from services.jwt_service import JwtService
-from services.auth_service import AuthService
+from app.repositories.user_repository import UserRepository
+from app.services.user_service import UserService
+from app.services.jwt_service import JwtService
+from app.services.auth_service import AuthService
 from passlib.context import CryptContext
-from dependencies.dependencies import bigquery_client  # import the singleton
+from app.dependencies.dependencies import bigquery_client  # import the singleton
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends
-from core.config import settings
+from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 

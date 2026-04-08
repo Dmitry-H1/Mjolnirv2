@@ -7,9 +7,9 @@ from typing import Optional
 
 from google.cloud import pubsub_v1, bigquery
 
-from schemas.raw_log import RawLogSchema
-from services.log_enrichment_service import LogEnrichmentService
-from services.anomaly_detection_service import AnomalyDetectionService
+from app.schemas.raw_log import RawLogSchema
+from app.services.log_enrichment_service import LogEnrichmentService
+from app.services.anomaly_detection_service import AnomalyDetectionService
 
 
 PROJECT_ID = os.getenv("GCP_PROJECT_ID", "mjolnir333")

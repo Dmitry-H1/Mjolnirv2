@@ -1,8 +1,8 @@
 # user_service.py
 from typing import Optional, List
 from uuid import UUID, uuid4
-from repositories.user_repository import UserRepository  # your repo from earlier
-from models.user import User  # your Pydantic User model
+from app.repositories.user_repository import UserRepository  # your repo from earlier
+from app.models.user import User  # your Pydantic User model
 
 class UserService:
     def __init__(self, user_repo: UserRepository):

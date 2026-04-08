@@ -3,11 +3,11 @@ from typing import Optional
 from fastapi import HTTPException, Response
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from services.user_service import UserService
-from services.jwt_service import JwtService
+from app.services.user_service import UserService
+from app.services.jwt_service import JwtService
 from uuid import uuid4
-from models.user import User
-from core.config import settings
+from app.models.user import User
+from app.core.config import settings
 
 
 class AuthService:

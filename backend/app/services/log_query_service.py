@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from repositories.log_repository import LogRepository
-from utils.time import to_iso_z
+from app.repositories.log_repository import LogRepository
+from app.utils.time import to_iso_z
 
 
 class LogQueryService:

@@ -1,8 +1,8 @@
-from ai.llm.ai_client import AiClient
+from app.ai.llm.ai_client import AiClient
 from typing import List, Dict, Any
 import json
 
-from ai.prompts.prompt_loader import load_prompt
+from app.ai.prompts.prompt_loader import load_prompt
 
 
 class LegacyLogAiService:
