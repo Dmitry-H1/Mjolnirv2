@@ -59,9 +59,119 @@ const navItems = [
   },
 ];
 
+function SidebarContent({
+  pathname,
+  user,
+  onNav,
+}: {
+  pathname: string;
+  user: User | null;
+  onNav?: () => void;
+}) {
+  async function handleLogout() {
+    try {
+      const { default: logOut } = await import("@/app/api/authentication/logOut");
+      await logOut();
+    } catch {}
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="px-6 pt-8 pb-6">
+        <div
+          className="display-title text-2xl font-bold tracking-tight"
+          style={{ color: "var(--accent)" }}
+        >
+          Mjolnir
+        </div>
+        <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+          Log Intelligence Platform
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 space-y-0.5">
+        {navItems.map((item) => {
+          const active =
+            pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onNav}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+              style={{
+                background: active ? "var(--accent-soft)" : "transparent",
+                color: active ? "var(--accent)" : "var(--muted)",
+              }}
+            >
+              <span style={{ opacity: active ? 1 : 0.7 }}>{item.icon}</span>
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* User + Sign out */}
+      <div
+        className="px-3 pb-6 pt-4"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        {user && (
+          <div className="flex items-center gap-3 px-3 py-2 mb-1">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+              style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+            >
+              {user.username[0]?.toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div
+                className="text-sm font-medium truncate"
+                style={{ color: "var(--text)" }}
+              >
+                {user.username}
+              </div>
+              <div className="text-xs" style={{ color: "var(--muted)" }}>
+                {user.role}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+          style={{ color: "var(--muted)" }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.color = "var(--danger)";
+            (e.currentTarget as HTMLElement).style.background = "rgba(158,47,47,0.08)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.color = "var(--muted)";
+            (e.currentTarget as HTMLElement).style.background = "transparent";
+          }}
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+            <path
+              fillRule="evenodd"
+              d="M3 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5v10h5a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V4zm10.293 3.293a1 1 0 0 1 1.414 0l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L14.586 11H8a1 1 0 1 1 0-2h6.586l-1.293-1.293a1 1 0 0 1 0-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     import("@/app/api/authFetch").then(({ default: authFetch }) => {
@@ -69,20 +179,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  async function handleLogout() {
-    try {
-      const { default: logOut } = await import(
-        "@/app/api/authentication/logOut"
-      );
-      await logOut();
-    } catch {}
-  }
+  // Close drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
 
   return (
     <div className="app-shell">
-      {/* ── Sidebar ── */}
+      {/* ── Desktop sidebar ── */}
       <aside
-        className="glass-panel flex flex-col"
+        className="glass-panel hidden md:flex flex-col"
         style={{
           borderRadius: 0,
           borderRight: "1px solid var(--border)",
@@ -91,100 +197,80 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           borderLeft: "none",
         }}
       >
-        {/* Logo */}
-        <div className="px-6 pt-8 pb-6">
-          <div
-            className="display-title text-2xl font-bold tracking-tight"
-            style={{ color: "var(--accent)" }}
-          >
-            Mjolnir
-          </div>
-          <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-            Log Intelligence Platform
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-3 space-y-0.5">
-          {navItems.map((item) => {
-            const active =
-              pathname === item.href ||
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{
-                  background: active ? "var(--accent-soft)" : "transparent",
-                  color: active ? "var(--accent)" : "var(--muted)",
-                }}
-              >
-                <span style={{ opacity: active ? 1 : 0.7 }}>{item.icon}</span>
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* User + Sign out */}
-        <div
-          className="px-3 pb-6 pt-4"
-          style={{ borderTop: "1px solid var(--border)" }}
-        >
-          {user && (
-            <div className="flex items-center gap-3 px-3 py-2 mb-1">
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                style={{
-                  background: "var(--accent-soft)",
-                  color: "var(--accent)",
-                }}
-              >
-                {user.username[0]?.toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <div
-                  className="text-sm font-medium truncate"
-                  style={{ color: "var(--text)" }}
-                >
-                  {user.username}
-                </div>
-                <div className="text-xs" style={{ color: "var(--muted)" }}>
-                  {user.role}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-            style={{ color: "var(--muted)" }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "var(--danger)";
-              (e.currentTarget as HTMLElement).style.background =
-                "rgba(158,47,47,0.08)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.color = "var(--muted)";
-              (e.currentTarget as HTMLElement).style.background = "transparent";
-            }}
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
-              <path
-                fillRule="evenodd"
-                d="M3 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5v10h5a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V4zm10.293 3.293a1 1 0 0 1 1.414 0l3 3a1 1 0 0 1 0 1.414l-3 3a1 1 0 0 1-1.414-1.414L14.586 11H8a1 1 0 1 1 0-2h6.586l-1.293-1.293a1 1 0 0 1 0-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Sign out
-          </button>
-        </div>
+        <SidebarContent pathname={pathname} user={user} />
       </aside>
 
-      {/* ── Main ── */}
-      <main className="overflow-auto">{children}</main>
+      {/* ── Mobile: top bar + drawer ── */}
+      <div className="md:hidden mobile-topbar glass-panel flex items-center justify-between px-4">
+        <div
+          className="display-title text-xl font-bold"
+          style={{ color: "var(--accent)" }}
+        >
+          Mjolnir
+        </div>
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="p-2 rounded-xl"
+          style={{ color: "var(--muted)" }}
+          aria-label="Open menu"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" width="22" height="22">
+            <path
+              fillRule="evenodd"
+              d="M3 5a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h7a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* ── Mobile drawer overlay ── */}
+      {drawerOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-40"
+            style={{ background: "rgba(30,26,22,0.4)", backdropFilter: "blur(2px)" }}
+            onClick={() => setDrawerOpen(false)}
+          />
+          {/* Drawer */}
+          <div
+            className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-72 glass-panel"
+            style={{ borderRadius: 0, borderLeft: "none" }}
+          >
+            <div className="flex items-center justify-between px-5 pt-5 pb-2">
+              <div
+                className="display-title text-xl font-bold"
+                style={{ color: "var(--accent)" }}
+              >
+                Mjolnir
+              </div>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="p-1.5 rounded-lg"
+                style={{ color: "var(--muted)" }}
+                aria-label="Close menu"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 0 1 1.414 0L10 8.586l4.293-4.293a1 1 0 1 1 1.414 1.414L11.414 10l4.293 4.293a1 1 0 0 1-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 0 1-1.414-1.414L8.586 10 4.293 5.707a1 1 0 0 1 0-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+            <SidebarContent
+              pathname={pathname}
+              user={user}
+              onNav={() => setDrawerOpen(false)}
+            />
+          </div>
+        </>
+      )}
+
+      {/* ── Main content ── */}
+      <main className="app-main">{children}</main>
     </div>
   );
 }

@@ -64,7 +64,7 @@ export default function AnomaliesPage() {
   };
 
   return (
-    <div className="p-8 min-h-screen">
+    <div className="p-4 md:p-8 min-h-screen">
       {/* Header */}
       <div className="mb-8 fade-up">
         <h1
@@ -113,7 +113,7 @@ export default function AnomaliesPage() {
       {!loading && logs.length > 0 && (
         <>
           {/* ── Summary cards ── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
             <MetricCard
               title="Critical"
               value={criticalCount}
@@ -229,7 +229,7 @@ export default function AnomaliesPage() {
                         style={{ borderBottom: "1px solid var(--border)" }}
                         onClick={() => {
                           const id = log.id ?? log.ingestion_id ?? log.trace_id;
-                          if (id) router.push(`/logs/${encodeURIComponent(id)}`);
+                          if (id) router.push(`/logs?id=${encodeURIComponent(id)}`);
                         }}
                         onMouseEnter={(e) => {
                           (e.currentTarget as HTMLElement).style.background =

@@ -13,7 +13,11 @@ app = FastAPI(title="Mjolnir API")
 # -----------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://mjolnir-api-312539493095.us-east1.run.app"],
+    allow_origins=["http://localhost:3000", 
+                   "https://mjolnir-api-312539493095.us-east1.run.app", 
+                   "https://mjolnir333.web.app", 
+                   "https://mjolnir333.firebaseapp.com"
+                   ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

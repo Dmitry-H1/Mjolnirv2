@@ -1,9 +1,4 @@
-import { cookies } from "next/headers";
-
-// The backend sets an HttpOnly `refresh_token` cookie on login.
-// We use its presence as the server-side signal that the user is authenticated.
-export async function getSessionUser(): Promise<{ loggedIn: true } | null> {
-  const cookieStore = cookies();
-  const hasRefresh = cookieStore.has("refresh_token");
-  return hasRefresh ? { loggedIn: true } : null;
-}
+// Session check is handled client-side via localStorage (access_token).
+// The HttpOnly refresh_token cookie is sent automatically by the browser
+// on API requests — it does not need to be read from JavaScript.
+export {};

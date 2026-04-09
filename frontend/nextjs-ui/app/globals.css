@@ -62,11 +62,13 @@ textarea {
   background: rgba(159, 59, 39, 0.2);
 }
 
+/* ── Desktop: sidebar + main ── */
 .app-shell {
   height: 100vh;
   overflow: hidden;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-rows: 1fr;
 }
 
 .app-shell > aside {
@@ -74,11 +76,47 @@ textarea {
   height: 100vh;
   position: sticky;
   top: 0;
+  grid-row: 1;
 }
 
-.app-shell > main {
+.app-main {
   overflow-y: auto;
   height: 100vh;
+  grid-row: 1;
+}
+
+/* ── Mobile: top bar + scrollable content ── */
+.mobile-topbar {
+  display: none;
+  height: 56px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  border-radius: 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+
+  .app-main {
+    height: auto;
+    overflow: visible;
+    padding-top: 56px; /* height of top bar */
+    min-height: 100vh;
+  }
+
+  .mobile-topbar {
+    display: flex;
+  }
 }
 
 .glass-panel {

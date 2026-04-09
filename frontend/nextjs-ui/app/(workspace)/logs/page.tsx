@@ -1,50 +1,59 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import authFetch from "@/app/api/authFetch";
 import type { Log, LogsResponse } from "@/lib/contracts";
 import LogsTable from "@/components/logs/logs-table";
+import LogDetailClient from "@/components/logs/log-detail-client";
 
-export default function LogsPage() {
+function LogsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedId = searchParams.get("id");
+
   const [logs, setLogs] = useState<Log[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchLogs = useCallback(
-    async (cur: string | null, append: boolean) => {
-      const params: Record<string, string> = {};
-      if (cur) params.cursor = cur;
-
-      const { data } = await authFetch.get<LogsResponse>("/logs", { params });
-      setLogs((prev) => (append ? [...prev, ...data.rows] : data.rows));
-      setCursor(data.nextCursor);
-    },
-    []
-  );
+  const fetchLogs = useCallback(async (cur: string | null, append: boolean) => {
+    const params: Record<string, string> = {};
+    if (cur) params.cursor = cur;
+    const { data } = await authFetch.get<LogsResponse>("/logs", { params });
+    setLogs((prev) => (append ? [...prev, ...data.rows] : data.rows));
+    setCursor(data.nextCursor);
+  }, []);
 
   useEffect(() => {
+    if (selectedId) return; // don't fetch list when viewing detail
     setLoading(true);
     fetchLogs(null, false)
       .catch(() => setError("Failed to load logs."))
       .finally(() => setLoading(false));
-  }, [fetchLogs]);
+  }, [fetchLogs, selectedId]);
 
   async function loadMore() {
     if (!cursor || loadingMore) return;
     setLoadingMore(true);
-    await fetchLogs(cursor, true).catch(() =>
-      setError("Failed to load more logs.")
-    );
+    await fetchLogs(cursor, true).catch(() => setError("Failed to load more logs."));
     setLoadingMore(false);
   }
 
+  function navigateToDetail(log: Log) {
+    const id = log.id ?? log.ingestion_id ?? log.trace_id;
+    if (id) router.push(`/logs?id=${encodeURIComponent(id)}`);
+  }
+
+  // ── Detail view ──
+  if (selectedId) {
+    return <LogDetailClient id={decodeURIComponent(selectedId)} />;
+  }
+
+  // ── List view ──
   return (
-    <div className="p-8 min-h-screen">
-      {/* Header */}
+    <div className="p-4 md:p-8 min-h-screen">
       <div className="mb-8 fade-up">
         <h1
           className="display-title text-3xl font-bold"
@@ -75,14 +84,10 @@ export default function LogsPage() {
         <LogsTable
           logs={logs}
           loading={loading}
-          onRowClick={(log) => {
-            const id = log.id ?? log.ingestion_id ?? log.trace_id;
-            if (id) router.push(`/logs/${encodeURIComponent(id)}`);
-          }}
+          onRowClick={navigateToDetail}
         />
       </div>
 
-      {/* Pagination */}
       <div className="mt-6 flex items-center justify-center gap-4">
         {cursor && !loading && (
           <button
@@ -107,5 +112,14 @@ export default function LogsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// useSearchParams requires a Suspense boundary for static export
+export default function LogsPage() {
+  return (
+    <Suspense>
+      <LogsContent />
+    </Suspense>
   );
 }

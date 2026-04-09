@@ -83,7 +83,7 @@ export default function ProfilePage() {
   const roleStyle = roleColors[user?.role ?? "USER"] ?? roleColors.USER;
 
   return (
-    <div className="p-8 min-h-screen" style={{ maxWidth: "680px" }}>
+    <div className="p-4 md:p-8 min-h-screen" style={{ maxWidth: "680px" }}>
       {/* Header */}
       <div className="mb-8 fade-up">
         <h1
