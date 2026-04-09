@@ -21,20 +21,18 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Derived summary stats
-  const totalLogs = metrics
-    ? metrics.countSeries.reduce((sum, [, count]) => sum + count, 0)
-    : 0;
+  // Derived summary stats — guard against API returning unexpected shape
+  const countSeries = metrics?.countSeries ?? [];
+  const scoreSeries = metrics?.scoreSeries ?? [];
+
+  const totalLogs = countSeries.reduce((sum, [, count]) => sum + (count ?? 0), 0);
 
   const avgScore =
-    metrics && metrics.scoreSeries.length > 0
-      ? metrics.scoreSeries.reduce((sum, [, v]) => sum + v, 0) /
-        metrics.scoreSeries.length
+    scoreSeries.length > 0
+      ? scoreSeries.reduce((sum, [, v]) => sum + (v ?? 0), 0) / scoreSeries.length
       : 0;
 
-  const alertCount = metrics
-    ? metrics.scoreSeries.filter(([, v]) => v >= 0.7).length
-    : 0;
+  const alertCount = scoreSeries.filter(([, v]) => (v ?? 0) >= 0.7).length;
 
   return (
     <div className="p-4 md:p-8 min-h-screen">
@@ -149,7 +147,7 @@ export default function DashboardPage() {
             <div className="text-xs mb-5" style={{ color: "var(--muted)" }}>
               Log volume by source object / category
             </div>
-            {metrics.sourceObjectSeries.categories.length > 0 ? (
+            {(metrics.sourceObjectSeries?.categories?.length ?? 0) > 0 ? (
               <SourceChart
                 categories={metrics.sourceObjectSeries.categories}
                 data={metrics.sourceObjectSeries.data}

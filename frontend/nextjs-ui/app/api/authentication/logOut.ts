@@ -8,5 +8,5 @@ export default async function logOut(): Promise<void> {
     // ignore errors on logout
   }
   localStorage.removeItem("access_token");
-  window.location.replace("/login");
+  window.dispatchEvent(new Event("mjolnir:logout"));
 }

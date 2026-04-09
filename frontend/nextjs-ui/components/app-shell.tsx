@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { User } from "@/lib/contracts";
 
@@ -63,32 +63,34 @@ function SidebarContent({
   pathname,
   user,
   onNav,
+  hideLogo,
 }: {
   pathname: string;
   user: User | null;
   onNav?: () => void;
+  hideLogo?: boolean;
 }) {
   async function handleLogout() {
-    try {
-      const { default: logOut } = await import("@/app/api/authentication/logOut");
-      await logOut();
-    } catch {}
+    const { default: logOut } = await import("@/app/api/authentication/logOut");
+    await logOut();
   }
 
   return (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="px-6 pt-8 pb-6">
-        <div
-          className="display-title text-2xl font-bold tracking-tight"
-          style={{ color: "var(--accent)" }}
-        >
-          Mjolnir
+      {/* Logo — hidden when drawer header already shows it */}
+      {!hideLogo && (
+        <div className="px-6 pt-8 pb-6">
+          <div
+            className="display-title text-2xl font-bold tracking-tight"
+            style={{ color: "var(--accent)" }}
+          >
+            Mjolnir
+          </div>
+          <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+            Log Intelligence Platform
+          </div>
         </div>
-        <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-          Log Intelligence Platform
-        </div>
-      </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-0.5">
@@ -170,6 +172,7 @@ function SidebarContent({
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -178,6 +181,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       authFetch.get<User>("/auth/me").then((r) => setUser(r.data)).catch(() => {});
     });
   }, []);
+
+  useEffect(() => {
+    const handler = () => router.replace("/login");
+    window.addEventListener("mjolnir:logout", handler);
+    return () => window.removeEventListener("mjolnir:logout", handler);
+  }, [router]);
 
   // Close drawer on route change
   useEffect(() => {
@@ -235,10 +244,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           />
           {/* Drawer */}
           <div
-            className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-72 glass-panel"
+            className="md:hidden fixed top-0 left-0 bottom-0 z-50 w-72 glass-panel flex flex-col"
             style={{ borderRadius: 0, borderLeft: "none" }}
           >
-            <div className="flex items-center justify-between px-5 pt-5 pb-2">
+            {/* Drawer header */}
+            <div
+              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+              style={{ borderBottom: "1px solid var(--border)" }}
+            >
               <div
                 className="display-title text-xl font-bold"
                 style={{ color: "var(--accent)" }}
@@ -260,11 +273,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </svg>
               </button>
             </div>
-            <SidebarContent
-              pathname={pathname}
-              user={user}
-              onNav={() => setDrawerOpen(false)}
-            />
+            {/* Scrollable nav content */}
+            <div className="flex-1 overflow-y-auto">
+              <SidebarContent
+                pathname={pathname}
+                user={user}
+                onNav={() => setDrawerOpen(false)}
+                hideLogo
+              />
+            </div>
           </div>
         </>
       )}
