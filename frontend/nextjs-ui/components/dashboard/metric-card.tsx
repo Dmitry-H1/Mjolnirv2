@@ -1,21 +1,47 @@
-export function MetricCard({
-  label,
+interface Props {
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  accent?: boolean;
+  danger?: boolean;
+  success?: boolean;
+}
+
+export default function MetricCard({
+  title,
   value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
+  subtitle,
+  accent,
+  danger,
+  success,
+}: Props) {
+  const valueColor = danger
+    ? "var(--danger)"
+    : accent
+    ? "var(--accent)"
+    : success
+    ? "var(--success)"
+    : "var(--text)";
+
   return (
-    <article className="section-card rounded-[1.5rem] p-5">
-      <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-        {label}
-      </p>
-      <p className="display-title mt-3 text-3xl font-semibold text-[color:var(--surface-dark)]">
+    <div className="section-card rounded-2xl p-5 fade-up">
+      <div
+        className="text-xs font-semibold uppercase tracking-widest mb-3"
+        style={{ color: "var(--muted)" }}
+      >
+        {title}
+      </div>
+      <div
+        className="display-title text-3xl font-bold"
+        style={{ color: valueColor }}
+      >
         {value}
-      </p>
-      <p className="mt-2 text-sm leading-6 text-[color:var(--muted)]">{detail}</p>
-    </article>
+      </div>
+      {subtitle && (
+        <div className="text-xs mt-1.5" style={{ color: "var(--muted)" }}>
+          {subtitle}
+        </div>
+      )}
+    </div>
   );
 }

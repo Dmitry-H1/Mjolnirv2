@@ -1,12 +1,38 @@
-import { AppShell } from "@/components/app-shell";
-import { requireSessionUser } from "@/lib/session";
+"use client";
 
-export default async function WorkspaceLayout({
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import AppShell from "@/components/app-shell";
+
+export default function WorkspaceLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await requireSessionUser();
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
 
-  return <AppShell user={user}>{children}</AppShell>;
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      router.replace("/login");
+    } else {
+      setReady(true);
+    }
+  }, [router]);
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div
+          className="text-sm display-title"
+          style={{ color: "var(--muted)" }}
+        >
+          Loading…
+        </div>
+      </div>
+    );
+  }
+
+  return <AppShell>{children}</AppShell>;
 }

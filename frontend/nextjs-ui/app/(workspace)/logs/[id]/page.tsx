@@ -1,108 +1,309 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { SeverityBadge } from "@/components/ui/severity-badge";
-import type { LogRecord } from "@/lib/contracts";
-import { formatScore, formatTimestamp } from "@/lib/format";
-import { buildLogInsights } from "@/lib/log-insights";
-import { getAuthorizedDataOrNull } from "@/lib/session";
+import authFetch from "@/app/api/authFetch";
+import type { Log } from "@/lib/contracts";
+import {
+  formatDateTime,
+  scoreLevel,
+  scoreLevelColor,
+} from "@/lib/format";
+import SeverityBadge from "@/components/ui/severity-badge";
+import ScoreIndicator from "@/components/ui/score-indicator";
 
-export default async function LogDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const log = await getAuthorizedDataOrNull<LogRecord>(`/logs/${params.id}`);
+export default function LogDetailPage() {
+  const params = useParams();
+  const rawId = params?.id as string;
+  const id = rawId ? decodeURIComponent(rawId) : "";
+  const [log, setLog] = useState<Log | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!log) {
-    notFound();
-  }
+  useEffect(() => {
+    if (!id) return;
+    authFetch
+      .get<Log>(`/logs/${id}`)
+      .then((r) => setLog(r.data))
+      .catch(() => setError("Log not found or access denied."))
+      .finally(() => setLoading(false));
+  }, [id]);
 
-  const insights = buildLogInsights(log);
+  const level = log?.anomaly_score != null ? scoreLevel(log.anomaly_score) : "normal";
+  const scoreColor = scoreLevelColor(level);
+
+  const metaFields = log
+    ? [
+        { label: "Ingestion ID", value: log.id ?? log.ingestion_id },
+        { label: "Event Time", value: formatDateTime(log.event_time) },
+        { label: "Inserted At", value: formatDateTime(log.inserted_at) },
+        { label: "Service", value: log.service },
+        { label: "Trace ID", value: log.trace_id },
+        { label: "User ID", value: log.user_id },
+        { label: "Source Bucket", value: log.source_bucket },
+        { label: "Source Object", value: log.source_object },
+        { label: "Model Version", value: log.model_version },
+      ].filter((f) => f.value)
+    : [];
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-[1.75rem] border border-[color:var(--border)] bg-[linear-gradient(135deg,rgba(255,251,245,0.96),rgba(255,247,237,0.84))] p-6 shadow-[var(--shadow-md)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="display-title text-xs uppercase tracking-[0.26em] text-[color:var(--accent)]">
-              Log Detail
-            </p>
-            <h1 className="display-title mt-3 text-3xl font-semibold">
-              {log.service || "Unknown service"}
-            </h1>
-          </div>
-          <SeverityBadge severity={log.severity} />
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-[color:var(--border)] bg-white/70 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-              Event time
-            </p>
-            <p className="mt-2 text-lg">{formatTimestamp(log.event_time)}</p>
-          </div>
-          <div className="rounded-2xl border border-[color:var(--border)] bg-white/70 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-              Anomaly score
-            </p>
-            <p className="mt-2 text-lg">{formatScore(log.anomaly_score)}</p>
-          </div>
-          <div className="rounded-2xl border border-[color:var(--border)] bg-white/70 p-4">
-            <p className="text-xs uppercase tracking-[0.2em] text-[color:var(--muted)]">
-              Record id
-            </p>
-            <p className="mt-2 break-all font-mono text-sm">{log.id}</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="space-y-4">
-          {insights.map((card) => (
-            <article
-              key={card.title}
-              className="section-card rounded-[1.5rem] p-5"
-            >
-              <p className="display-title text-xs uppercase tracking-[0.22em] text-[color:var(--muted)]">
-                {card.title}
-              </p>
-              <p className="mt-3 text-base leading-7">{card.body}</p>
-            </article>
-          ))}
-        </div>
-
-        <article className="section-card rounded-[1.5rem] p-5">
-          <p className="display-title text-xs uppercase tracking-[0.22em] text-[color:var(--muted)]">
-            Full payload
-          </p>
-          <div className="mt-4 space-y-5">
-            <div>
-              <h2 className="display-title text-lg font-semibold">Normalized message</h2>
-              <p className="mt-2 leading-7 text-[color:var(--text)]">
-                {log.normalized_message || "No normalized message available."}
-              </p>
-            </div>
-            <div>
-              <h2 className="display-title text-lg font-semibold">Original message</h2>
-              <p className="mt-2 leading-7 text-[color:var(--muted)]">
-                {log.message || "No raw message available."}
-              </p>
-            </div>
-            <div>
-              <h2 className="display-title text-lg font-semibold">Anomaly reason</h2>
-              <p className="mt-2 leading-7 text-[color:var(--muted)]">
-                {log.anomaly_reason || "No anomaly reason returned by the API."}
-              </p>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <Link
-        href="/logs"
-        className="inline-flex rounded-full border border-[color:var(--border)] bg-white/80 px-4 py-2 text-sm font-semibold text-[color:var(--muted)] transition hover:border-[color:var(--accent)] hover:text-[color:var(--accent)]"
+    <div className="p-8 min-h-screen" style={{ maxWidth: "960px" }}>
+      {/* Breadcrumb */}
+      <nav
+        className="flex items-center gap-2 text-sm mb-6 fade-up"
+        style={{ color: "var(--muted)" }}
       >
-        Back to log explorer
-      </Link>
+        <Link
+          href="/logs"
+          style={{ color: "var(--accent)" }}
+          className="hover:underline"
+        >
+          Log Explorer
+        </Link>
+        <span>/</span>
+        <span className="font-mono text-xs truncate max-w-xs">{id}</span>
+      </nav>
+
+      {loading && (
+        <div
+          className="flex items-center gap-3 text-sm"
+          style={{ color: "var(--muted)" }}
+        >
+          <div
+            className="w-5 h-5 border-2 rounded-full animate-spin flex-shrink-0"
+            style={{
+              borderColor: "var(--border)",
+              borderTopColor: "var(--accent)",
+            }}
+          />
+          Loading log…
+        </div>
+      )}
+
+      {error && (
+        <div
+          className="px-5 py-4 rounded-xl text-sm"
+          style={{
+            background: "rgba(158,47,47,0.08)",
+            color: "var(--danger)",
+            border: "1px solid rgba(158,47,47,0.2)",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+      {log && (
+        <>
+          {/* ── Header ── */}
+          <div className="mb-6 fade-up">
+            <div className="flex items-center gap-2.5 flex-wrap mb-3">
+              <SeverityBadge severity={log.severity} />
+
+              {log.anomaly_score != null && (
+                <span
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold"
+                  style={{
+                    background: `${scoreColor}18`,
+                    color: scoreColor,
+                  }}
+                >
+                  Anomaly · {level.toUpperCase()}
+                </span>
+              )}
+
+              {log.category && (
+                <span
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium"
+                  style={{
+                    background: "var(--accent-soft)",
+                    color: "var(--accent)",
+                  }}
+                >
+                  {log.category}
+                </span>
+              )}
+            </div>
+
+            <h1
+              className="display-title text-2xl font-bold"
+              style={{ color: "var(--text)" }}
+            >
+              {log.service || "Log Event"}
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "var(--muted)" }}>
+              {formatDateTime(log.event_time)}
+            </p>
+          </div>
+
+          {/* ── Meta grid ── */}
+          {metaFields.length > 0 && (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6 fade-up">
+              {metaFields.map((f) => (
+                <div key={f.label} className="section-card rounded-xl p-4">
+                  <div
+                    className="text-xs uppercase tracking-wide mb-1.5"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {f.label}
+                  </div>
+                  <div
+                    className="text-sm font-medium break-all font-mono"
+                    style={{ color: "var(--text)" }}
+                  >
+                    {f.value}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* ── Anomaly panel ── */}
+          {log.anomaly_score != null && (
+            <div
+              className="section-card rounded-2xl p-6 mb-6 fade-up"
+              style={{ borderLeft: `3px solid ${scoreColor}` }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div
+                  className="display-title font-semibold"
+                  style={{ color: "var(--text)" }}
+                >
+                  Anomaly Analysis
+                </div>
+                <ScoreIndicator score={log.anomaly_score} />
+              </div>
+
+              {/* Score bar */}
+              <div
+                className="h-2.5 rounded-full overflow-hidden mb-4"
+                style={{ background: "rgba(98,88,77,0.12)" }}
+              >
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${Math.min(log.anomaly_score * 100, 100)}%`,
+                    background: scoreColor,
+                  }}
+                />
+              </div>
+
+              {/* Level pills row */}
+              <div className="flex gap-2 flex-wrap mb-4">
+                {(["normal", "low", "medium", "high", "critical"] as const).map(
+                  (l) => {
+                    const thresholds = {
+                      normal: "< 0.30",
+                      low: "0.30–0.49",
+                      medium: "0.50–0.69",
+                      high: "0.70–0.84",
+                      critical: "≥ 0.85",
+                    };
+                    const isActive = level === l;
+                    return (
+                      <span
+                        key={l}
+                        className="inline-flex flex-col items-center px-3 py-1.5 rounded-lg text-xs"
+                        style={{
+                          background: isActive
+                            ? `${scoreLevelColor(l)}18`
+                            : "rgba(98,88,77,0.07)",
+                          color: isActive
+                            ? scoreLevelColor(l)
+                            : "var(--muted)",
+                          fontWeight: isActive ? 600 : 400,
+                          border: isActive
+                            ? `1px solid ${scoreLevelColor(l)}40`
+                            : "1px solid transparent",
+                        }}
+                      >
+                        <span className="uppercase tracking-wide">{l}</span>
+                        <span style={{ fontSize: "10px", opacity: 0.7 }}>
+                          {thresholds[l]}
+                        </span>
+                      </span>
+                    );
+                  }
+                )}
+              </div>
+
+              {log.anomaly_reason && (
+                <p className="text-sm" style={{ color: "var(--muted)" }}>
+                  {log.anomaly_reason}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ── Raw message ── */}
+          <div className="section-card rounded-2xl p-6 mb-6 fade-up">
+            <div
+              className="display-title font-semibold mb-3"
+              style={{ color: "var(--text)" }}
+            >
+              Raw Message
+            </div>
+            <pre
+              className="text-sm whitespace-pre-wrap break-words p-4 rounded-xl"
+              style={{
+                fontFamily: "monospace",
+                color: "var(--text)",
+                background: "rgba(62,43,22,0.04)",
+                lineHeight: 1.7,
+              }}
+            >
+              {log.message}
+            </pre>
+          </div>
+
+          {/* ── Normalized message ── */}
+          {log.normalized_message && (
+            <div className="section-card rounded-2xl p-6 mb-6 fade-up">
+              <div
+                className="display-title font-semibold mb-3"
+                style={{ color: "var(--text)" }}
+              >
+                Normalized Message
+              </div>
+              <pre
+                className="text-sm whitespace-pre-wrap break-words p-4 rounded-xl"
+                style={{
+                  fontFamily: "monospace",
+                  color: "var(--muted)",
+                  background: "rgba(62,43,22,0.04)",
+                  lineHeight: 1.7,
+                }}
+              >
+                {log.normalized_message}
+              </pre>
+            </div>
+          )}
+
+          {/* ── Entities ── */}
+          {log.entities && Object.keys(log.entities).length > 0 && (
+            <div className="section-card rounded-2xl p-6 mb-6 fade-up">
+              <div
+                className="display-title font-semibold mb-3"
+                style={{ color: "var(--text)" }}
+              >
+                Extracted Entities
+              </div>
+              <pre
+                className="text-sm whitespace-pre-wrap p-4 rounded-xl"
+                style={{
+                  fontFamily: "monospace",
+                  color: "var(--text)",
+                  background: "rgba(62,43,22,0.04)",
+                  lineHeight: 1.7,
+                }}
+              >
+                {JSON.stringify(log.entities, null, 2)}
+              </pre>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

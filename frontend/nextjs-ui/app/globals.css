@@ -63,9 +63,22 @@ textarea {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+}
+
+.app-shell > aside {
+  overflow-y: auto;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.app-shell > main {
+  overflow-y: auto;
+  height: 100vh;
 }
 
 .glass-panel {
