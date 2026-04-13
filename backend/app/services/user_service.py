@@ -45,5 +45,14 @@ class UserService:
             id=UUID(row["user_id"]),
             username=row["username"],
             password=row["password"],
-            role=row["role"]
+            role=row["role"],
+            slack_webhook_url=row.get("slack_webhook_url")
         )
+
+    def update_slack_webhook(self, user_id: str, webhook_url: Optional[str]) -> None:
+        self.user_repo.update_slack_webhook(str(user_id), webhook_url)
+
+    def get_users_with_slack(self) -> List[User]:
+        """Returns only users who have Slack connected — used when firing alerts."""
+        all_users = self.get_all_users()
+        return [u for u in all_users if u.slack_webhook_url]

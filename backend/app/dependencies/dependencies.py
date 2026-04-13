@@ -9,6 +9,8 @@ from app.core.config import settings
 from google.cloud import bigquery
 from app.repositories.log_repository import LogRepository
 from app.services.log_query_service import LogQueryService
+from app.repositories.user_repository import UserRepository
+from app.services.user_service import UserService
 
 # Shared AI client (created once)
 ai_client = AiClient(
@@ -57,9 +59,17 @@ log_repository = LogRepository(
     settings.bq_dataset,
     settings.bq_table,
 )
+user_repository = UserRepository(
+    bigquery_client,
+    settings.gcp_project_id,
+    settings.bq_dataset,
+    settings.bq_users_table,
+)
+user_service = UserService(user_repository)
+
 
 log_query_service = LogQueryService(log_repository)
-metrics_service = MetricsService(log_repository)
+metrics_service = MetricsService(log_repository, user_service)
 
 def get_log_query_service():
     return log_query_service

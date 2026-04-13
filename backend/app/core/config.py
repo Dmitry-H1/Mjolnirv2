@@ -18,7 +18,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str
     jwt_access_expire_min: str
     jwt_refresh_expire_days: str
-    class Config:
+
+    slack_client_id: str = ""
+    slack_client_secret: str = ""
+    slack_redirect_uri: str = ""
+    frontend_url: str = "http://localhost:3000"
+
+    class Config:   
         env_file = BASE_DIR / ".env"  
 
 settings = Settings()

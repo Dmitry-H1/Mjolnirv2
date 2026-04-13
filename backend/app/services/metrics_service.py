@@ -3,13 +3,17 @@ from datetime import datetime
 from uuid import UUID
 
 from app.repositories.log_repository import LogRepository
+from app.services.user_service import UserService
+from app.services.slack_service import send_anomaly_alert_sync
+
+ANOMALY_THRESHOLD = 0.70
 
 
 class MetricsService:
 
-    def __init__(self, repository: LogRepository):
+    def __init__(self, repository: LogRepository, user_service: UserService):
         self.repository = repository
-
+        self.user_service = user_service 
 
     def get_metrics(self, user_id: UUID):
 
@@ -24,21 +28,21 @@ class MetricsService:
 
         SAMPLE_RATE = 0.05
         bucket_size = 1000 * 60 * 60 * 6
-
         bucket_map = {}
 
-        for row in rows:
+        # Track the single highest anomaly seen this run
+        highest_score: float = 0.0
+        highest_ts: float | None = None
 
+        for row in rows:
             if random.random() > SAMPLE_RATE:
                 continue
 
             fake_ts = start + random.random() * (end - start)
-
             bucket = int(fake_ts // bucket_size) * bucket_size
             bucket_map[bucket] = bucket_map.get(bucket, 0) + 1
 
             is_error = random.random() < 0.3
-
             fake_score = (
                 round(0.1 + random.random() * 0.7, 3)
                 if is_error
@@ -46,6 +50,15 @@ class MetricsService:
             )
 
             score_series.append([fake_ts, fake_score])
+
+            # Track peak anomaly for alerting
+            if fake_score >= ANOMALY_THRESHOLD and fake_score > highest_score:
+                highest_score = fake_score
+                highest_ts = fake_ts
+
+        # Fire alert once for the worst anomaly found this run
+        if highest_score >= ANOMALY_THRESHOLD:
+            self._notify_slack_users(highest_score, highest_ts)
 
         for ts, count in bucket_map.items():
             count_series.append([ts, count])
@@ -68,3 +81,13 @@ class MetricsService:
                 "data": source_data,
             },
         }
+
+    def _notify_slack_users(self, score: float, timestamp: float | None):
+        """Send alert to every user who has Slack connected."""
+        users = self.user_service.get_users_with_slack()
+        for user in users:
+            send_anomaly_alert_sync(
+                webhook_url=user.slack_webhook_url,
+                anomaly_score=score,
+                timestamp=timestamp,
+            )

@@ -7,3 +7,4 @@ class User(BaseModel):
     username: str = Field(...)
     password: str = Field(...)
     role: str = Field(default="USER") 
+    slack_webhook_url: Optional[str] = Field(default=None)

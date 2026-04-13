@@ -5,6 +5,7 @@ from app.api.routes.incidents import router as incident_router
 from app.api.routes.logs_api import router as logs_router
 from app.api.routes.metrics_api import router as metrics_router
 from app.api.routes.auth_api import router as auth_router
+from app.api.routes import slack_api
 
 app = FastAPI(title="Mjolnir API")
 
@@ -30,3 +31,4 @@ app.include_router(incident_router, prefix="/incidents")
 app.include_router(logs_router, prefix="/logs")
 app.include_router(metrics_router, prefix="/metrics")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(slack_api.router)

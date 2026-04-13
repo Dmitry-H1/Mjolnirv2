@@ -15,7 +15,8 @@ class UserRepository:
                 user_id,
                 username,
                 password,
-                role
+                role,
+                slack_webhook_url
             FROM `{self.project}.{self.dataset}.{self.table}`
             WHERE user_id = @user_id
             LIMIT 1
@@ -34,7 +35,8 @@ class UserRepository:
                 user_id,
                 username,
                 password,
-                role
+                role,
+                slack_webhook_url
             FROM `{self.project}.{self.dataset}.{self.table}`
             WHERE username = @username
             LIMIT 1
@@ -53,7 +55,8 @@ class UserRepository:
                 user_id,
                 username,
                 password,
-                role
+                role,
+                slack_webhook_url
             FROM `{self.project}.{self.dataset}.{self.table}`
             ORDER BY username
         """
@@ -63,14 +66,28 @@ class UserRepository:
 
     def insert_user(self, user: Dict) -> None:
         query = f"""
-            INSERT INTO `{self.project}.{self.dataset}.{self.table}` (user_id, username, password, role)
-            VALUES (@user_id, @username, @password, @role)
+            INSERT INTO `{self.project}.{self.dataset}.{self.table}` (user_id, username, password, role, slack_webhook_url)
+            VALUES (@user_id, @username, @password, @role, @slack_webhook_url)
         """
         params = [
             bigquery.ScalarQueryParameter("user_id", "STRING", user["user_id"]),
             bigquery.ScalarQueryParameter("username", "STRING", user["username"]),
             bigquery.ScalarQueryParameter("password", "STRING", user["password"]),
             bigquery.ScalarQueryParameter("role", "STRING", user["role"]),
+            bigquery.ScalarQueryParameter("slack_webhook_url", "STRING", user.get("slack_webhook_url")),
         ]
         job_config = bigquery.QueryJobConfig(query_parameters=params)
         self.client.query(query, job_config=job_config).result()  # wait for completion
+
+    def update_slack_webhook(self, user_id: str, webhook_url: Optional[str]) -> None:
+        query = f"""
+            UPDATE `{self.project}.{self.dataset}.{self.table}`
+            SET slack_webhook_url = @slack_webhook_url
+            WHERE user_id = @user_id
+        """
+        params = [
+            bigquery.ScalarQueryParameter("user_id", "STRING", user_id),
+            bigquery.ScalarQueryParameter("slack_webhook_url", "STRING", webhook_url),
+        ]
+        job_config = bigquery.QueryJobConfig(query_parameters=params)
+        self.client.query(query, job_config=job_config).result()
