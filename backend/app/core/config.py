@@ -16,8 +16,16 @@ class Settings(BaseSettings):
 
     jwt_secret_key: str
     jwt_algorithm: str
-    jwt_access_expire_min: str
-    jwt_refresh_expire_days: str
+    jwt_access_expire_min: int
+    jwt_refresh_expire_days: int
+
+    email_smtp_server: str
+    email_smtp_port: int
+    email_address: str
+    email_password: str
+
+    app_url: str
+
     class Config:
         env_file = BASE_DIR / ".env"  
 

@@ -19,6 +19,13 @@ class UserService:
         if not user_row:
             return None
         return self._row_to_user(user_row)
+    
+    def get_user_by_email(self, user_email: str) -> Optional[User]:
+        user_row = self.user_repo.get_user_by_email(user_email)
+        if not user_row:
+            return None
+        return self._row_to_user(user_row)
+
 
     def get_all_users(self) -> List[User]:
         rows = self.user_repo.get_all_users()
@@ -30,6 +37,7 @@ class UserService:
         user_dict = {
             "user_id": user_id,
             "username": user.username,
+            "email": user.email,
             "password": user.password,
             "role": user.role,
         }
@@ -44,6 +52,7 @@ class UserService:
         return User(
             id=UUID(row["user_id"]),
             username=row["username"],
+            email=row["email"],
             password=row["password"],
             role=row["role"]
         )

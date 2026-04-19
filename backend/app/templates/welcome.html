@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Mjolnir</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1ebdf;font-family:'Palatino Linotype','Book Antiqua',Georgia,serif;color:#1e1a16;">
+
+  <!-- Outer wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1ebdf;padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;width:100%;">
+
+          <!-- ── Brand bar ── -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#9f3b27,#7d2e1e);border-radius:16px 16px 0 0;padding:28px 36px;text-align:center;">
+              <div style="font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:30px;font-weight:800;letter-spacing:0.06em;color:#ffffff;">
+                Mjolnir
+              </div>
+              <div style="font-size:12px;color:rgba(255,255,255,0.70);margin-top:5px;letter-spacing:0.04em;">
+                Operational visibility for your security logs
+              </div>
+            </td>
+          </tr>
+
+          <!-- ── Main card ── -->
+          <tr>
+            <td style="background:#fffcf7;border:1px solid rgba(85,63,37,0.14);border-top:none;border-radius:0 0 16px 16px;padding:36px 36px 32px;box-shadow:0 18px 48px rgba(62,43,22,0.10);">
+
+              <!-- Avatar circle -->
+              <div style="width:52px;height:52px;border-radius:13px;background:rgba(159,59,39,0.12);color:#9f3b27;font-family:'Trebuchet MS',Arial,sans-serif;font-size:20px;font-weight:800;line-height:52px;text-align:center;margin-bottom:20px;">
+                {{initial}}
+              </div>
+
+              <!-- Greeting -->
+              <div style="font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:22px;font-weight:700;color:#1e1a16;margin-bottom:12px;">
+                Welcome, {{username}}!
+              </div>
+
+              <p style="font-size:15px;line-height:1.7;color:#62584d;margin:0 0 16px 0;">
+                Your Mjolnir account is ready. You can now sign in and start exploring
+                your enriched log events, anomaly scores, and real-time security metrics.
+              </p>
+
+              <p style="font-size:15px;line-height:1.7;color:#62584d;margin:0 0 0 0;">
+                Here's a summary of your account:
+              </p>
+
+              <!-- Divider -->
+              <div style="height:1px;background:rgba(85,63,37,0.12);margin:24px 0;"></div>
+
+              <!-- Info rows -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+
+                <!-- Username -->
+                <tr>
+                  <td style="padding-bottom:14px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="36" height="36" style="width:36px;padding-right:14px;" valign="middle">
+                          <table cellpadding="0" cellspacing="0" border="0" width="36">
+                            <tr>
+                              <td width="36" height="36" align="center" valign="middle"
+                                  style="width:36px;height:36px;border-radius:10px;background:rgba(159,59,39,0.10);font-size:18px;text-align:center;">
+                                &#128100;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td valign="middle">
+                          <div style="font-family:'Trebuchet MS',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#9f3b27;margin-bottom:3px;">
+                            Username
+                          </div>
+                          <div style="font-size:14px;color:#1e1a16;">
+                            {{username}}
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Email -->
+                <tr>
+                  <td style="padding-bottom:14px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="36" height="36" style="width:36px;padding-right:14px;" valign="middle">
+                          <table cellpadding="0" cellspacing="0" border="0" width="36">
+                            <tr>
+                              <td width="36" height="36" align="center" valign="middle"
+                                  style="width:36px;height:36px;border-radius:10px;background:rgba(159,59,39,0.10);font-size:18px;text-align:center;">
+                                &#128231;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td valign="middle">
+                          <div style="font-family:'Trebuchet MS',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#9f3b27;margin-bottom:3px;">
+                            Email
+                          </div>
+                          <div style="font-size:14px;color:#1e1a16;">
+                            {{email}}
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Role -->
+                <tr>
+                  <td style="padding-bottom:0;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td width="36" height="36" style="width:36px;padding-right:14px;" valign="middle">
+                          <table cellpadding="0" cellspacing="0" border="0" width="36">
+                            <tr>
+                              <td width="36" height="36" align="center" valign="middle"
+                                  style="width:36px;height:36px;border-radius:10px;background:rgba(159,59,39,0.10);font-size:18px;text-align:center;">
+                                &#128737;
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td valign="middle">
+                          <div style="font-family:'Trebuchet MS',Arial,sans-serif;font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#9f3b27;margin-bottom:3px;">
+                            Role
+                          </div>
+                          <div style="font-size:14px;color:#1e1a16;">
+                            {{role}}
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+              </table>
+
+              <!-- Divider -->
+              <div style="height:1px;background:rgba(85,63,37,0.12);margin:24px 0;"></div>
+
+              <!-- CTA button -->
+              <div style="text-align:center;margin-bottom:24px;">
+                <a href="{{app_url}}"
+                   style="display:inline-block;background:#9f3b27;color:#ffffff;font-family:'Trebuchet MS','Segoe UI',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.04em;text-decoration:none;padding:14px 36px;border-radius:12px;">
+                  Go to Dashboard &rarr;
+                </a>
+              </div>
+
+              <p style="font-size:13px;color:#a09080;text-align:center;margin:0 0 28px 0;line-height:1.6;">
+                If you didn't create this account, you can safely ignore this email.
+              </p>
+
+              <!-- Footer -->
+              <div style="border-top:1px solid rgba(85,63,37,0.10);padding-top:20px;text-align:center;font-size:12px;color:#a09080;line-height:1.7;">
+                <span>&copy; {{year}} Mjolnir &nbsp;&middot;&nbsp; Operational Security Platform</span><br/>
+                <span>You're receiving this because an account was registered with this email address.</span>
+              </div>
+
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

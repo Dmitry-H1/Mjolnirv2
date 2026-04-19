@@ -9,6 +9,7 @@ import { API_BASE_URL } from "@/app/constants";
 export default function SignupPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -34,6 +35,7 @@ export default function SignupPage() {
     try {
       await axios.post(`${API_BASE_URL}/auth/register`, {
         username,
+        email,
         password,
         role: "USER",
       });
@@ -86,9 +88,10 @@ export default function SignupPage() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {[
-            { id: "username", label: "Username", type: "text", value: username, set: setUsername, placeholder: "choose a username" },
+            { id: "username", label: "Username", type: "text",     value: username, set: setUsername, placeholder: "choose a username" },
+            { id: "email",    label: "Email",    type: "email",    value: email,    set: setEmail,    placeholder: "you@example.com" },
             { id: "password", label: "Password", type: "password", value: password, set: setPassword, placeholder: "••••••••" },
-            { id: "confirm", label: "Confirm Password", type: "password", value: confirm, set: setConfirm, placeholder: "••••••••" },
+            { id: "confirm",  label: "Confirm Password", type: "password", value: confirm, set: setConfirm, placeholder: "••••••••" },
           ].map((f) => (
             <div key={f.id}>
               <label

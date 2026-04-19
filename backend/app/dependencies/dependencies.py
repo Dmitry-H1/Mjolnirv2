@@ -9,6 +9,7 @@ from app.core.config import settings
 from google.cloud import bigquery
 from app.repositories.log_repository import LogRepository
 from app.services.log_query_service import LogQueryService
+from app.services.email_service import EmailService
 
 # Shared AI client (created once)
 ai_client = AiClient(
@@ -66,6 +67,14 @@ def get_log_query_service():
 
 def get_metrics_service():
     return metrics_service
+
+
+
+
+email_service = EmailService(settings.email_smtp_server, settings.email_smtp_port, settings.email_address, settings.email_password)
+def get_email_service():
+    return email_service
+
 
 
 

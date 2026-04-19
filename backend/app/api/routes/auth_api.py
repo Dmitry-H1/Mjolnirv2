@@ -17,12 +17,14 @@ router = APIRouter()
 def register(user: UserRegister, auth_service: AuthService = Depends(get_auth_service)):
     new_user: User = auth_service.register_user(
         username=user.username,
+        email=user.email,
         password=user.password,
         role=user.role
     )
     return {
         "id": str(new_user.id),
         "username": new_user.username,
+        "email": new_user.email,
         "role": new_user.role
     }
 
@@ -75,5 +77,6 @@ def me(current_user: User = Depends(get_current_user)):
     return {
         "id": str(current_user.id),
         "username": current_user.username,
+        "email": current_user.email,
         "role": current_user.role
     }

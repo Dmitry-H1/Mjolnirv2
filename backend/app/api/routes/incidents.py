@@ -1,6 +1,10 @@
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+
+from app.services.email_service import EmailService
 '''from db.session import get_db'''
+from app.dependencies.dependencies import get_email_service
 
 router = APIRouter()
 
@@ -16,7 +20,10 @@ def list_incidents(db: Session = Depends(get_db)):
 def test():
     return "It works!"
 
-def gihubztestz():
-    return "githubztestz"
-def testGit():
-    return 'fffff'
+@router.get("/email")
+def email_test():
+
+    email_service: EmailService = get_email_service()
+    email_service.send_text_email("vilya436@gmail.com", "hi", "it works")
+
+

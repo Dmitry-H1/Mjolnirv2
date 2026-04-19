@@ -26,3 +26,5 @@ opentelemetry-sdk
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
+
+pydantic[email]

@@ -1,4 +1,6 @@
 import time
+from pathlib import Path
+from datetime import datetime
 from typing import Optional
 from fastapi import HTTPException, Response
 from passlib.context import CryptContext
@@ -8,32 +10,53 @@ from app.services.jwt_service import JwtService
 from uuid import uuid4
 from app.models.user import User
 from app.core.config import settings
+from app.services.email_service import EmailService
+
+_WELCOME_TEMPLATE = Path(__file__).parent.parent / "templates" / "welcome.html"
 
 
 class AuthService:
-    def __init__(self, user_service: UserService, jwt_service: JwtService, pwd_context: CryptContext):
+    def __init__(self, user_service: UserService, jwt_service: JwtService, pwd_context: CryptContext, email_service: EmailService):
         self.user_service = user_service
         self.jwt_service = jwt_service
         self.pwd_context = pwd_context
+        self.email_service = email_service
 
     # ---------------------------
     # User registration
     # ---------------------------
-    def register_user(self, username: str, password: str, role: str = "USER"):
+    def register_user(self, username: str, email: str, password: str, role: str = "USER"):
         existing = self.user_service.get_user_by_username(username)
         if existing:
             raise HTTPException(status_code=400, detail="User already exists")
 
+        # (optional but recommended) check email uniqueness
+        existing_email = self.user_service.get_user_by_email(email)
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Email already exists")
+
         hashed = self.pwd_context.hash(password)
 
         user = User(
-            id=uuid4(),  # generate a proper UUID
+            id=uuid4(),
             username=username,
-            password=hashed,  # store hashed password
+            email=email,   
+            password=hashed,
             role=role
         )
 
-        self.user_service.create_user(user)  # make sure add_user accepts a Pydantic User
+        self.user_service.create_user(user)
+
+        html = (
+            _WELCOME_TEMPLATE.read_text(encoding="utf-8")
+            .replace("{{username}}", username)
+            .replace("{{initial}}", username[0].upper())
+            .replace("{{email}}", email)
+            .replace("{{role}}", role)
+            .replace("{{app_url}}", settings.app_url)
+            .replace("{{year}}", str(datetime.now().year))
+        )
+        self.email_service.send_html_email(email, "Welcome to Mjolnir", html)
 
         return user
     # ---------------------------

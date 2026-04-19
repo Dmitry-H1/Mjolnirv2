@@ -118,6 +118,11 @@ export default function ProfilePage() {
             >
               {user?.username ?? "—"}
             </div>
+            {user?.email && (
+              <div className="text-sm mt-0.5" style={{ color: "var(--muted)" }}>
+                {user.email}
+              </div>
+            )}
             <span
               className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold mt-1.5 uppercase tracking-wide"
               style={roleStyle}
@@ -134,8 +139,9 @@ export default function ProfilePage() {
         >
           {[
             { label: "Username", value: user?.username },
-            { label: "Role", value: user?.role },
-            { label: "User ID", value: user?.id, mono: true },
+            { label: "Email",    value: user?.email },
+            { label: "Role",     value: user?.role },
+            { label: "User ID",  value: user?.id, mono: true },
           ].map((row) => (
             <div key={row.label} className="flex items-start gap-4">
               <div

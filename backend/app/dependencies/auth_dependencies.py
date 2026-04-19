@@ -7,6 +7,7 @@ from app.dependencies.dependencies import bigquery_client  # import the singleto
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends
 from app.core.config import settings
+from app.dependencies.dependencies import get_email_service
 
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
@@ -22,7 +23,8 @@ user_repository = UserRepository(
     )
 user_service = UserService(user_repository)
 jwt_service = JwtService()
-auth_service = AuthService(user_service, jwt_service, pwd_context)
+email_service = get_email_service()
+auth_service = AuthService(user_service, jwt_service, pwd_context, email_service)
 
 
 # Dependency functions
