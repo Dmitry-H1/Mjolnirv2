@@ -6,7 +6,7 @@ export interface User {
 }
 
 export interface Log {
-  id?: string;          // backend aliases ingestion_id → id
+  log_id?: string;
   ingestion_id?: string;
   inserted_at?: string;
   event_time?: string;
@@ -32,7 +32,7 @@ export interface LogsResponse {
 
 export interface MetricsData {
   countSeries: [number, number][];
-  scoreSeries: [number, number][];
+  scoreSeries: [number, number, string?][];
   sourceObjectSeries: {
     categories: string[];
     data: number[];

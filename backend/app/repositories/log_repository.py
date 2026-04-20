@@ -23,11 +23,13 @@ class LogRepository:
 
         query = f"""
         SELECT
-            ingestion_id AS id,
+            log_id,
+            ingestion_id,
             inserted_at AS event_time,
             service,
             severity,
             normalized_message,
+            category,
             message,
             anomaly_reason,
             anomaly_score,
@@ -47,17 +49,19 @@ class LogRepository:
     def get_log_by_id(self, log_id: str, user_id: str):
         query = f"""
             SELECT
-                ingestion_id AS id,
+                log_id,
+                ingestion_id,
                 inserted_at AS event_time,
                 service,
                 severity,
                 normalized_message,
+                category,
                 message,
                 anomaly_reason,
                 anomaly_score,
                 user_id
             FROM `{self.project}.{self.dataset}.{self.table}`
-            WHERE ingestion_id = @id AND user_id = @user_id
+            WHERE log_id = @id AND user_id = @user_id
             LIMIT 1
         """
 
@@ -81,6 +85,7 @@ class LogRepository:
 
         query = f"""
             SELECT
+                log_id,
                 inserted_at,
                 anomaly_score
             FROM `{self.project}.{self.dataset}.{self.table}`

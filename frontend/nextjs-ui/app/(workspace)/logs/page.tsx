@@ -42,7 +42,7 @@ function LogsContent() {
   }
 
   function navigateToDetail(log: Log) {
-    const id = log.id ?? log.ingestion_id ?? log.trace_id;
+    const id = log.log_id;
     if (id) router.push(`/logs?id=${encodeURIComponent(id)}`);
   }
 

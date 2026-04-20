@@ -149,7 +149,7 @@ export default function LogDetailClient({ id }: Props) {
     authFetch
       .get<Log>(`/logs/${encodeURIComponent(id)}`)
       .then((res) => setLog(res.data))
-      .catch(() => setError("Failed to load log details."))
+      .catch((err) => setError(`Failed to load log details. ${err?.response?.status ? `(${err.response.status}: ${err.response.data?.detail ?? ""})` : err?.message ?? ""}`))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -157,7 +157,7 @@ export default function LogDetailClient({ id }: Props) {
   const levelColor = scoreLevelColor(level);
   const scoreVal = log?.anomaly_score ?? 0;
   const barPct = Math.min(scoreVal * 100, 100);
-  const logId = log?.id ?? log?.ingestion_id ?? id;
+  const logId = log?.log_id ?? id;
   const shortId = logId.length > 40 ? logId.slice(0, 40) + "…" : logId;
 
   return (
@@ -276,23 +276,6 @@ export default function LogDetailClient({ id }: Props) {
                     {log.severity}
                   </span>
                 )}
-                {log.category && (
-                  <span
-                    style={{
-                      padding: "5px 16px",
-                      borderRadius: 999,
-                      fontSize: 11,
-                      fontWeight: 600,
-                      letterSpacing: "0.06em",
-                      background: "var(--accent-soft)",
-                      color: "var(--accent)",
-                      border: "1.5px solid rgba(159,59,39,0.18)",
-                      fontFamily: "var(--font-display)",
-                    }}
-                  >
-                    {log.category}
-                  </span>
-                )}
                 <span
                   style={{
                     padding: "5px 16px",
@@ -359,7 +342,8 @@ export default function LogDetailClient({ id }: Props) {
               gap: 12,
             }}
           >
-            <MetaCard label="Ingestion ID" value={logId} />
+            <MetaCard label="Log ID"        value={logId} />
+            <MetaCard label="Ingestion ID"  value={log.ingestion_id} />
             <MetaCard label="Event Time"   value={formatDateTime(log.event_time)} />
             <MetaCard label="Inserted At"  value={formatDateTime(log.inserted_at)} />
             <MetaCard label="Service"      value={log.service} />
