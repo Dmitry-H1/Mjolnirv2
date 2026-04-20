@@ -6,7 +6,7 @@ import type { ApexOptions } from "apexcharts";
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface Props {
-  series: [number, number][];
+  series: [number, number, ...unknown[]][];
 }
 
 const options: ApexOptions = {
@@ -80,7 +80,7 @@ export default function ScoreChart({ series }: Props) {
     <Chart
       type="line"
       height={220}
-      series={[{ name: "Anomaly Score", data: series }]}
+      series={[{ name: "Anomaly Score", data: series.map(([x, y]) => [x, y]) }]}
       options={options}
     />
   );
