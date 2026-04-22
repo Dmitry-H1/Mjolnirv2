@@ -145,7 +145,7 @@ function SectionCard({
 
 function SuggestionSection({ logId }: { logId: string }) {
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const load = () => {
@@ -158,14 +158,12 @@ function SuggestionSection({ logId }: { logId: string }) {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [logId]);
-
   const priorityColor = suggestion?.priority === "high" ? "var(--danger, #9e2f2f)" : "var(--accent)";
   const priorityBg    = suggestion?.priority === "high" ? "rgba(158,47,47,0.07)"   : "var(--accent-soft)";
 
   return (
     <SectionCard accent="rgba(159,59,39,0.25)">
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: suggestion || loading || error ? 18 : 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M10.5 3.5l-2 2M5.5 8.5l-2 2" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
@@ -174,9 +172,37 @@ function SuggestionSection({ logId }: { logId: string }) {
             AI Suggestion
           </span>
         </div>
-        {error && !loading && (
-          <button onClick={load} style={{ background: "none", border: "1.5px solid rgba(158,47,47,0.3)", padding: "6px 14px", borderRadius: 8, cursor: "pointer", color: "var(--danger, #9e2f2f)", fontSize: 11, fontWeight: 700, fontFamily: "var(--font-display)" }}>
-            Retry
+
+        {!loading && !suggestion && !error && (
+          <button
+            onClick={load}
+            style={{
+              display: "flex", alignItems: "center", gap: 7,
+              background: "var(--accent-soft, rgba(163,103,20,0.08))",
+              border: "1.5px solid var(--accent)",
+              padding: "7px 16px", borderRadius: 10, cursor: "pointer",
+              color: "var(--accent)", fontSize: 12, fontWeight: 700,
+              fontFamily: "var(--font-display)", transition: "opacity 0.15s",
+            }}
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M10.5 3.5l-2 2M5.5 8.5l-2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            Generate Summary
+          </button>
+        )}
+
+        {(suggestion || error) && !loading && (
+          <button
+            onClick={load}
+            style={{
+              background: "none", border: "1.5px solid var(--border)",
+              padding: "5px 12px", borderRadius: 8, cursor: "pointer",
+              color: "var(--muted)", fontSize: 11, fontWeight: 700,
+              fontFamily: "var(--font-display)",
+            }}
+          >
+            Regenerate
           </button>
         )}
       </div>
