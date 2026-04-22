@@ -1,22 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import authFetch from "@/app/api/authFetch";
 import type { User } from "@/lib/contracts";
 
-type UploadType = "standard" | "legacy";
-
-interface UploadState {
-  status: "idle" | "uploading" | "success" | "error";
-  message: string;
-}
-
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
-  const [upload, setUpload] = useState<Record<UploadType, UploadState>>({
-    standard: { status: "idle", message: "" },
-    legacy: { status: "idle", message: "" },
-  });
 
   useEffect(() => {
     authFetch
@@ -24,48 +13,6 @@ export default function ProfilePage() {
       .then((r) => setUser(r.data))
       .catch(() => {});
   }, []);
-
-  async function handleUpload(
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: UploadType
-  ) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUpload((prev) => ({
-      ...prev,
-      [type]: { status: "uploading", message: "" },
-    }));
-
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const endpoint =
-        type === "legacy" ? "/logs/upload/legacy" : "/logs/upload";
-
-      await authFetch.post(endpoint, form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setUpload((prev) => ({
-        ...prev,
-        [type]: {
-          status: "success",
-          message: `"${file.name}" uploaded successfully`,
-        },
-      }));
-    } catch {
-      setUpload((prev) => ({
-        ...prev,
-        [type]: {
-          status: "error",
-          message: "Upload failed. Please try again.",
-        },
-      }));
-    } finally {
-      e.target.value = "";
-    }
-  }
 
   const initials = user?.username?.[0]?.toUpperCase() ?? "?";
 
@@ -93,7 +40,7 @@ export default function ProfilePage() {
           Profile
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-          Your account details and log ingestion tools
+          Your account details
         </p>
       </div>
 
@@ -161,131 +108,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* ── Upload section ── */}
-      <div className="section-card rounded-2xl p-6 fade-up-delay">
-        <div
-          className="display-title font-semibold text-base mb-1"
-          style={{ color: "var(--text)" }}
-        >
-          Upload Logs
-        </div>
-        <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
-          Upload a log file for processing and enrichment. Use{" "}
-          <strong>Legacy</strong> format for older, non-standard log files.
-        </p>
-
-        <div className="space-y-5">
-          {(
-            [
-              { type: "standard" as UploadType, label: "Standard Logs", id: "upload-std" },
-              { type: "legacy" as UploadType, label: "Legacy Logs", id: "upload-leg" },
-            ]
-          ).map(({ type, label, id }) => {
-            const state = upload[type];
-            const isUploading = state.status === "uploading";
-
-            return (
-              <div key={type}>
-                <div
-                  className="text-xs font-semibold uppercase tracking-wide mb-2"
-                  style={{ color: "var(--muted)" }}
-                >
-                  {label}
-                </div>
-
-                <label
-                  htmlFor={id}
-                  className="block border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all"
-                  style={{
-                    borderColor: isUploading
-                      ? "var(--accent)"
-                      : "var(--border)",
-                    background: isUploading
-                      ? "var(--accent-soft)"
-                      : "rgba(255,251,245,0.5)",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isUploading)
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "var(--accent)";
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isUploading)
-                      (e.currentTarget as HTMLElement).style.borderColor =
-                        "var(--border)";
-                  }}
-                >
-                  <div
-                    className="flex flex-col items-center gap-1.5"
-                    style={{ color: "var(--muted)" }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <div
-                          className="w-5 h-5 border-2 rounded-full animate-spin"
-                          style={{
-                            borderColor: "var(--border)",
-                            borderTopColor: "var(--accent)",
-                          }}
-                        />
-                        <span className="text-sm">Uploading…</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          width="20"
-                          height="20"
-                          style={{ opacity: 0.5 }}
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z"
-                            clipRule="evenodd"
-                            transform="rotate(180, 10, 10)"
-                          />
-                        </svg>
-                        <span className="text-sm">
-                          Click to select or drag a file here
-                        </span>
-                        <span className="text-xs" style={{ opacity: 0.6 }}>
-                          Any log file format
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <input
-                    id={id}
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => handleUpload(e, type)}
-                    disabled={isUploading}
-                  />
-                </label>
-
-                {state.status !== "idle" && state.message && (
-                  <div
-                    className="mt-2 px-4 py-2.5 rounded-xl text-sm"
-                    style={{
-                      background:
-                        state.status === "success"
-                          ? "rgba(41,91,63,0.1)"
-                          : "rgba(158,47,47,0.08)",
-                      color:
-                        state.status === "success"
-                          ? "var(--success)"
-                          : "var(--danger)",
-                    }}
-                  >
-                    {state.message}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 }
