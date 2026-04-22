@@ -78,6 +78,7 @@ def get_log_by_id(
 
     return log
 
+
 @router.get("/{log_id}/suggestion", response_model=SuggestionResponse)
 def get_log_suggestion(
     log_id: str,

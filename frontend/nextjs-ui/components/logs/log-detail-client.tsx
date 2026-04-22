@@ -158,15 +158,17 @@ function SuggestionSection({ logId }: { logId: string }) {
       .finally(() => setLoading(false));
   };
 
-  const priorityColor = suggestion?.priority === "high" ? "var(--danger, #9e2f2f)" : "var(--accent)";
-  const priorityBg    = suggestion?.priority === "high" ? "rgba(158,47,47,0.07)"   : "var(--accent-soft)";
+  const isHigh        = suggestion?.priority === "high";
+  const priorityColor = isHigh ? "#9e2f2f"               : "var(--accent)";
+  const priorityBg    = isHigh ? "rgba(158,47,47,0.07)"  : "var(--accent-soft)";
+  const cardAccent    = isHigh ? "rgba(158,47,47,0.35)"  : suggestion ? "rgba(163,103,20,0.25)" : "var(--border)";
 
   return (
-    <SectionCard accent="rgba(159,59,39,0.25)">
+    <SectionCard accent={cardAccent}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: suggestion || loading || error ? 18 : 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M10.5 3.5l-2 2M5.5 8.5l-2 2" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M10.5 3.5l-2 2M5.5 8.5l-2 2" stroke={priorityColor} strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
           <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", fontFamily: "var(--font-display)" }}>
             AI Suggestion
@@ -211,7 +213,7 @@ function SuggestionSection({ logId }: { logId: string }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 13 }}>
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "spin 1s linear infinite" }}>
             <circle cx="6.5" cy="6.5" r="5" stroke="var(--border)" strokeWidth="2" />
-            <path d="M6.5 1.5a5 5 0 0 1 5 5" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
+            <path d="M6.5 1.5a5 5 0 0 1 5 5" stroke={priorityColor} strokeWidth="2" strokeLinecap="round" />
           </svg>
           Analysing log with AI…
         </div>
