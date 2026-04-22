@@ -114,3 +114,7 @@ class AuthService:
             return user
         except JWTError as e:
             raise HTTPException(status_code=401, detail="Invalid token error")
+        
+
+    def get_api_key(self, user: User):
+        return self.jwt_service.create_api_key(user)

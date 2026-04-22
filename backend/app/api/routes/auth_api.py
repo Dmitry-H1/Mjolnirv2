@@ -68,6 +68,15 @@ def refresh(response: Response, refresh_token: str = Cookie(None), auth_service:
 def logout(response: Response, auth_service: AuthService = Depends(get_auth_service)):
     return auth_service.logout_user(response)
 
+
+@router.post("/api-key")
+def api_key(current_user: User = Depends(get_current_user), 
+            auth_service: AuthService = Depends(get_auth_service)):
+    
+    api_key = auth_service.get_api_key(current_user)
+    return {"api_key": api_key, "token_type": "Bearer"}
+
+
 # -----------------------
 # Protected route example
 # -----------------------
@@ -80,3 +89,4 @@ def me(current_user: User = Depends(get_current_user)):
         "email": current_user.email,
         "role": current_user.role
     }
+

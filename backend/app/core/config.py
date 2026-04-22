@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str
     jwt_access_expire_min: int
     jwt_refresh_expire_days: int
+    jwt_api_key_expire_months: int
 
     email_smtp_server: str
     email_smtp_port: int
