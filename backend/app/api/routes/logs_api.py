@@ -4,9 +4,11 @@ from app.schemas.raw_log import RawLogSchema
 from app.services.log_service import LogService
 from app.services.legacy_log_service import LegacyLogService
 from app.services.log_enrichment_service import LogEnrichmentService
-from app.dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service
+from app.dependencies.dependencies import get_log_query_service, get_log_ingestion_service, get_log_service, get_legacy_log_service, get_log_enrichment_service, get_suggestion_service
 from typing import Annotated
 from app.ai.llm.legacy_log_ai_service import LegacyLogAiService
+from app.ai.llm.suggest import LogSuggestionService
+from app.schemas.suggestion_schema import SuggestionResponse
 from app.core.config import settings
 from app.services.log_query_service import LogQueryService
 from app.dependencies.auth_dependencies import get_current_user
@@ -75,3 +77,23 @@ def get_log_by_id(
         raise HTTPException(status_code=404, detail="Log not found")
 
     return log
+
+@router.get("/{log_id}/suggestion", response_model=SuggestionResponse)
+def get_log_suggestion(
+    log_id: str,
+    query_service: LogQueryService = Depends(get_log_query_service),
+    suggestion_service: LogSuggestionService = Depends(get_suggestion_service),
+    user: User = Depends(get_current_user)
+):
+    log = query_service.get_log_by_id(log_id, user.id)
+ 
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+ 
+    result = suggestion_service.suggest(log)
+ 
+    return SuggestionResponse(
+        log_id=log_id,
+        suggestion=result["suggestion"],
+        priority=result["priority"],
+    )
