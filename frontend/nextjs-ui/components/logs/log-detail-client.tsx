@@ -17,6 +17,12 @@ interface Props {
   id: string;
 }
 
+interface Suggestion {
+  log_id: string;
+  suggestion: string;
+  priority: "high" | "normal";
+}
+
 const LEVELS = [
   { key: "normal",   label: "NORMAL",   range: "< 0.30" },
   { key: "low",      label: "LOW",      range: "0.30–0.49" },
@@ -134,6 +140,74 @@ function SectionCard({
     >
       {children}
     </div>
+  );
+}
+
+function SuggestionSection({ logId }: { logId: string }) {
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const load = () => {
+    setLoading(true);
+    setError("");
+    authFetch
+      .get<Suggestion>(`/logs/${encodeURIComponent(logId)}/suggestion`)
+      .then((res) => setSuggestion(res.data))
+      .catch(() => setError("Failed to generate suggestion."))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { load(); }, [logId]);
+
+  const priorityColor = suggestion?.priority === "high" ? "var(--danger, #9e2f2f)" : "var(--accent)";
+  const priorityBg    = suggestion?.priority === "high" ? "rgba(158,47,47,0.07)"   : "var(--accent-soft)";
+
+  return (
+    <SectionCard accent="rgba(159,59,39,0.25)">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 1v3M8 12v3M1 8h3M12 8h3M3.5 3.5l2 2M10.5 10.5l2 2M10.5 3.5l-2 2M5.5 8.5l-2 2" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", fontFamily: "var(--font-display)" }}>
+            AI Suggestion
+          </span>
+        </div>
+        {error && !loading && (
+          <button onClick={load} style={{ background: "none", border: "1.5px solid rgba(158,47,47,0.3)", padding: "6px 14px", borderRadius: 8, cursor: "pointer", color: "var(--danger, #9e2f2f)", fontSize: 11, fontWeight: 700, fontFamily: "var(--font-display)" }}>
+            Retry
+          </button>
+        )}
+      </div>
+
+      {loading && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted)", fontSize: 13 }}>
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ animation: "spin 1s linear infinite" }}>
+            <circle cx="6.5" cy="6.5" r="5" stroke="var(--border)" strokeWidth="2" />
+            <path d="M6.5 1.5a5 5 0 0 1 5 5" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Analysing log with AI…
+        </div>
+      )}
+
+      {error && !loading && (
+        <div style={{ padding: "12px 16px", borderRadius: 12, background: "rgba(158,47,47,0.07)", color: "var(--danger, #9e2f2f)", border: "1px solid rgba(158,47,47,0.2)", fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+
+      {suggestion && !loading && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <span style={{ padding: "4px 14px", borderRadius: 999, fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", background: priorityBg, color: priorityColor, border: `1.5px solid ${priorityColor}33`, fontFamily: "var(--font-display)", alignSelf: "flex-start" }}>
+            {suggestion.priority === "high" ? "⚠ High Priority" : "Normal Priority"}
+          </span>
+          <div style={{ padding: "16px 18px", borderRadius: 14, background: "var(--bg)", border: "1px solid var(--border)", borderLeft: `3px solid ${priorityColor}`, fontSize: 13, color: "var(--text)", lineHeight: 1.7, fontFamily: "var(--font-body)" }}>
+            {suggestion.suggestion}
+          </div>
+        </div>
+      )}
+    </SectionCard>
   );
 }
 
@@ -353,6 +427,8 @@ export default function LogDetailClient({ id }: Props) {
             <MetaCard label="Source Object" value={log.source_object} />
             <MetaCard label="Model Version" value={log.model_version} />
           </div>
+
+          <SuggestionSection logId={id} />
 
           {/* ── Anomaly Analysis ── */}
           <SectionCard accent={`${levelColor}55`}>

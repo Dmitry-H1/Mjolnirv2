@@ -4,6 +4,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 class Settings(BaseSettings):
+    
     api_key: str
     gcp_project_id: str
     gcp_bucket: str
@@ -28,5 +29,6 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = BASE_DIR / ".env"  
+        extra = "ignore"
 
 settings = Settings()

@@ -9,6 +9,8 @@ from app.core.config import settings
 from google.cloud import bigquery
 from app.repositories.log_repository import LogRepository
 from app.services.log_query_service import LogQueryService
+from app.ai.llm.suggest import LogSuggestionService
+ 
 from app.services.email_service import EmailService
 
 # Shared AI client (created once)
@@ -68,6 +70,8 @@ def get_log_query_service():
 def get_metrics_service():
     return metrics_service
 
+def get_suggestion_service() -> LogSuggestionService:
+    return LogSuggestionService(ai_client)
 
 
 
