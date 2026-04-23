@@ -228,7 +228,7 @@ export default function AnomaliesPage() {
                         className="cursor-pointer transition-colors"
                         style={{ borderBottom: "1px solid var(--border)" }}
                         onClick={() => {
-                          const id = log.id ?? log.ingestion_id ?? log.trace_id;
+                          const id = log.log_id;
                           if (id) router.push(`/logs?id=${encodeURIComponent(id)}`);
                         }}
                         onMouseEnter={(e) => {
