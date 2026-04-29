@@ -58,7 +58,7 @@ def process_gcs_event(event: dict):
     elif file_type == "raw_logs":
         raw_logs = raw_parser.parse_logs_from_file(content, file_name)
     else:
-        raise ValueError(f"Unknown file type: {file_type}")
+        print(f"Not an file parsing message file type: {file_type}")
 
     raw_logs = raw_parser.attach_user_to_logs(raw_logs, user_id)
 
@@ -118,7 +118,7 @@ def _flush_user(user_id: str) -> None:
 
     end       = datetime.now(timezone.utc)
     fmt       = "%Y%m%dT%H%M%SZ"
-    blob_name = f"user_{user_id}/raw_logs/{start.strftime(fmt)}_{end.strftime(fmt)}.ndjson"
+    blob_name = f"user_{user_id}/ingest_archive/{start.strftime(fmt)}_{end.strftime(fmt)}.ndjson"
 
     ndjson = "\n".join(json.dumps(log) for log in logs)
     bucket.blob(blob_name).upload_from_string(ndjson, content_type="application/x-ndjson")
