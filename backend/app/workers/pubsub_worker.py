@@ -74,7 +74,12 @@ def process_gcs_event(event: dict):
         "object":       file_name,
         "logs":         [x.model_dump_json() for x in raw_logs],
     }
-    publisher.publish(raw_logs_topic_path, json.dumps(payload).encode("utf-8")).result()
+
+    publisher.publish(
+        raw_logs_topic_path,
+        json.dumps(payload).encode("utf-8")
+    ).result()
+
     print(f"Published {len(raw_logs)} logs from gs://{bucket_name}/{file_name} → {RAW_LOGS_TOPIC_ID}")
 
 
@@ -161,6 +166,10 @@ def archive_callback(message: pubsub_v1.subscriber.message.Message) -> None:
 
         message.ack()
         print(f"[archive] Buffered {len(raw_logs)} logs from /ingest")
+
+    except (FileNotFoundError, ValueError) as e:
+        print(f"[ERROR] Permanent failure in Worker A: {e}")
+        message.ack()
 
     except Exception as e:
         print(f"[archive] Error: {e}")
