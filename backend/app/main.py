@@ -16,7 +16,8 @@ app.add_middleware(
     allow_origins=["http://localhost:3000", 
                    "https://mjolnir-api-312539493095.us-east1.run.app", 
                    "https://mjolnir333.web.app", 
-                   "https://mjolnir333.firebaseapp.com"
+                   "https://mjolnir333.firebaseapp.com",
+                   "https://mjolnir.live"
                    ],
     allow_credentials=True,
     allow_methods=["*"],

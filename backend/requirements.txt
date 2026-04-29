@@ -13,6 +13,8 @@ google-genai
 numpy
 scikit-learn
 scipy
+pandas
+joblib
 
 python-dotenv
 requests
