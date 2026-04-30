@@ -45,8 +45,8 @@ export default function DashboardPage() {
           Operational Dashboard
         </h1>
         <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-          Real-time visibility into your log pipeline and anomaly detection
-          engine
+          Real-time visibility into your log pipeline and anomaly detection engine ·{" "}
+          <span style={{ color: "var(--accent)", fontWeight: 600 }}>past 7 days</span>
         </p>
       </div>
 
@@ -88,12 +88,12 @@ export default function DashboardPage() {
             <MetricCard
               title="Total Logs (Sample)"
               value={totalLogs.toLocaleString()}
-              subtitle="from metrics sample window"
+              subtitle="past 7 days"
             />
             <MetricCard
               title="Avg Anomaly Score"
               value={avgScore.toFixed(4)}
-              subtitle="across all sampled events"
+              subtitle="across past 7 days"
               accent={avgScore >= 0.5 && avgScore < 0.7}
               danger={avgScore >= 0.7}
               success={avgScore < 0.3}
@@ -117,7 +117,7 @@ export default function DashboardPage() {
                 Log Ingestion Rate
               </div>
               <div className="text-xs mb-5" style={{ color: "var(--muted)" }}>
-                Sampled log volume over time
+                Log volume over the past 7 days · 30-minute buckets
               </div>
               <CountChart series={metrics.countSeries} />
             </div>
@@ -130,7 +130,7 @@ export default function DashboardPage() {
                 Anomaly Score Trend
               </div>
               <div className="text-xs mb-5" style={{ color: "var(--muted)" }}>
-                Average anomaly score · dashed line = alert threshold (0.70)
+                Average anomaly score over the past 7 days · dashed line = alert threshold (0.70)
               </div>
               <ScoreChart series={metrics.scoreSeries} />
             </div>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
               Source Distribution
             </div>
             <div className="text-xs mb-5" style={{ color: "var(--muted)" }}>
-              Log volume by source object / category
+              Log volume by source · past 7 days
             </div>
             {(metrics.sourceObjectSeries?.categories?.length ?? 0) > 0 ? (
               <SourceChart

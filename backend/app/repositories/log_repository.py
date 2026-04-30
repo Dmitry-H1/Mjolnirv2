@@ -97,7 +97,7 @@ class LogRepository:
                 anomaly_score
             FROM `{self.project}.{self.dataset}.{self.table}`
             WHERE user_id = @user_id
-            AND inserted_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 30 DAY)
+            AND inserted_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
             ORDER BY inserted_at
         """
 
@@ -119,6 +119,7 @@ class LogRepository:
                 COUNT(*) AS count
             FROM `{self.project}.{self.dataset}.{self.table}`
             WHERE user_id = @user_id
+            AND inserted_at > TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)
             GROUP BY source_object
             ORDER BY count DESC
             LIMIT 10

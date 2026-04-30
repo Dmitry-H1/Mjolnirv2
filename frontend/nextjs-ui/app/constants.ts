@@ -1,1 +1,1 @@
-export const API_BASE_URL = "http://127.0.0.1:8000" //"https://mjolnir-api-312539493095.us-east1.run.app";
+export const API_BASE_URL = "https://mjolnir-api-312539493095.us-east1.run.app";
