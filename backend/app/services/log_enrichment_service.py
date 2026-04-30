@@ -1,7 +1,5 @@
 import re
-import uuid
-import joblib
-from datetime import datetime, timezone
+
 from typing import Optional, Dict, Any, List
 from sklearn.pipeline import Pipeline
 
@@ -37,12 +35,9 @@ class LogEnrichmentService:
         enriched = EnrichedLog(message=raw.message)
 
         # Core metadata
-        enriched.ingestion_id = str(uuid.uuid4())
-        enriched.inserted_at = datetime.now(timezone.utc)
         enriched.event_time = raw.timestamp
-
         enriched.service = raw.service
-        enriched.trace_id = raw.trace_id
+        enriched.user_ingest_service = raw.service
         enriched.user_id = raw.user_id
 
         # Normalize message
@@ -63,8 +58,6 @@ class LogEnrichmentService:
 
         # Entity extraction
         enriched.entities = self.extract_entities(raw.message)
-
-        enriched.model_version = "v1.0" # EXAMPLE???
 
         return enriched
 

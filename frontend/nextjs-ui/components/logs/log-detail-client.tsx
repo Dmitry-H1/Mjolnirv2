@@ -415,7 +415,7 @@ export default function LogDetailClient({ id }: Props) {
                 <span style={{ fontSize: 13, color: "var(--muted)", fontFamily: "var(--font-body)" }}>
                   {formatDateTime(log.event_time ?? log.inserted_at)}
                 </span>
-                {log.service && (
+                {log.user_ingest_service && (
                   <>
                     <span style={{ color: "var(--border)", fontSize: 16 }}>·</span>
                     <span
@@ -424,6 +424,24 @@ export default function LogDetailClient({ id }: Props) {
                         fontFamily: "monospace",
                         color: severityColor(log.severity),
                         background: severityBg(log.severity),
+                        padding: "2px 10px",
+                        borderRadius: 6,
+                      }}
+                    >
+                      {log.user_ingest_service}
+                    </span>
+                  </>
+                )}
+                {log.service && (
+                  <>
+                    <span style={{ color: "var(--border)", fontSize: 16 }}>·</span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontFamily: "monospace",
+                        color: "var(--muted)",
+                        background: "var(--bg)",
+                        border: "1px solid var(--border)",
                         padding: "2px 10px",
                         borderRadius: 6,
                       }}
@@ -444,16 +462,12 @@ export default function LogDetailClient({ id }: Props) {
               gap: 12,
             }}
           >
-            <MetaCard label="Log ID"        value={logId} />
-            <MetaCard label="Ingestion ID"  value={log.ingestion_id} />
+            <MetaCard label="Log ID"       value={logId} />
+            <MetaCard label="Ingestion ID" value={log.ingestion_id} />
             <MetaCard label="Event Time"   value={formatDateTime(log.event_time)} />
             <MetaCard label="Inserted At"  value={formatDateTime(log.inserted_at)} />
-            <MetaCard label="Service"      value={log.service} />
-            <MetaCard label="User ID"      value={log.user_id} />
-            <MetaCard label="Trace ID"     value={log.trace_id} />
-            <MetaCard label="Source Bucket" value={log.source_bucket} />
-            <MetaCard label="Source Object" value={log.source_object} />
-            <MetaCard label="Model Version" value={log.model_version} />
+            <MetaCard label="Service"      value={log.user_ingest_service} />
+            <MetaCard label="Component"    value={log.service} />
           </div>
 
           <SuggestionSection logId={id} />

@@ -27,12 +27,12 @@ const columns = [
         className="text-xs font-mono whitespace-nowrap"
         style={{ color: "var(--muted)" }}
       >
-        {formatDateTime(info.getValue())}
+        {formatDateTime(info.getValue() ?? info.row.original.inserted_at)}
       </span>
     ),
     size: 170,
   }),
-  col.accessor("service", {
+  col.accessor("user_ingest_service", {
     header: "Service",
     cell: (info) => {
       const val = info.getValue() || "—";
@@ -47,6 +47,22 @@ const columns = [
       );
     },
     size: 130,
+  }),
+  col.accessor("service", {
+    header: "Component",
+    cell: (info) => {
+      const val = info.getValue() || "—";
+      return (
+        <span
+          className="text-xs block truncate"
+          style={{ color: "var(--muted)", maxWidth: "120px" }}
+          title={val}
+        >
+          {val}
+        </span>
+      );
+    },
+    size: 120,
   }),
   col.accessor("severity", {
     header: "Severity",

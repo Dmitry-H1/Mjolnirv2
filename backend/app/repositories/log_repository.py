@@ -16,7 +16,7 @@ class LogRepository:
         ]
 
         if cursor:
-            where_clause += " AND inserted_at < @cursor"
+            where_clause += " AND COALESCE(event_time, inserted_at) < @cursor"
             params.append(
                 bigquery.ScalarQueryParameter("cursor", "TIMESTAMP", cursor)
             )
@@ -25,8 +25,10 @@ class LogRepository:
         SELECT
             log_id,
             ingestion_id,
-            inserted_at AS event_time,
+            inserted_at,
+            event_time,
             service,
+            user_ingest_service,
             severity,
             normalized_message,
             category,
@@ -36,7 +38,7 @@ class LogRepository:
             user_id
         FROM `{self.project}.{self.dataset}.{self.table}`
         {where_clause}
-        ORDER BY inserted_at DESC
+        ORDER BY COALESCE(event_time, inserted_at) DESC
         LIMIT 100
         """
 
@@ -51,14 +53,19 @@ class LogRepository:
             SELECT
                 log_id,
                 ingestion_id,
-                inserted_at AS event_time,
+                inserted_at,
+                event_time,
                 service,
+                user_ingest_service,
                 severity,
                 normalized_message,
                 category,
                 message,
                 anomaly_reason,
                 anomaly_score,
+                source_bucket,
+                source_object,
+                entities,
                 user_id
             FROM `{self.project}.{self.dataset}.{self.table}`
             WHERE log_id = @id AND user_id = @user_id

@@ -4,14 +4,15 @@ from typing import Optional, Dict, Any
 
 
 class EnrichedLog(BaseModel):
+    log_id: Optional[str] = Field(default=None)
     ingestion_id: Optional[str] = Field(default=None)
     
     inserted_at: Optional[datetime] = Field(default=None)
     event_time: Optional[datetime] = Field(default=None)
     
     service: Optional[str] = Field(default=None)
-    trace_id: Optional[str] = Field(default=None)
-    
+    user_ingest_service: Optional[str] = Field(default=None)
+
     message: str = Field(...)
     normalized_message: Optional[str] = Field(default=None)
     
@@ -20,8 +21,6 @@ class EnrichedLog(BaseModel):
     
     anomaly_score: Optional[float] = Field(default=None)
     anomaly_reason: Optional[str] = Field(default=None)
-    
-    model_version: Optional[str] = Field(default=None)
     
     source_bucket: Optional[str] = Field(default=None)
     source_object: Optional[str] = Field(default=None)

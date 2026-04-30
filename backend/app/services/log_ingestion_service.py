@@ -17,9 +17,10 @@ class LogIngestionService:
     def publish_logs(self, logs: list[RawLogSchema], topic_id: str):
         topic_path = self.publisher.topic_path(self.project_id, topic_id)
         payload = {
-            "source": "api_ingest",
+            "source":       "api_ingest",
             "ingestion_id": str(uuid.uuid4()),
-            "logs": [log.model_dump_json() for log in logs]
+            "object":       "api_ingest",
+            "logs":         [log.model_dump_json() for log in logs]
         }
         self.publisher.publish(topic_path, json.dumps(payload).encode("utf-8")).result()
 

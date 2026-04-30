@@ -185,6 +185,7 @@ def to_bq_row(
         "inserted_at":        datetime.now(timezone.utc).isoformat(),
         "event_time":         event_time,
         "service":            component,
+        "user_ingest_service": data.get("service"),
         "message":            data.get("message"),
         "normalized_message": data.get("normalized_message"),
         "severity":           data.get("severity"),

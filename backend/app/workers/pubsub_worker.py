@@ -17,7 +17,7 @@ GCS_SUB_ID        = os.getenv("GCS_SUB_ID", "gcs-log-ingestion-sub")
 RAW_LOGS_TOPIC_ID = os.getenv("RAW_LOGS_TOPIC_ID", "raw-logs-topic")
 ARCHIVE_SUB_ID    = os.getenv("RAW_LOGS_ARCHIVE_SUB_ID", "raw-logs-archive-sub")
 GCS_BUCKET        = os.getenv("GCP_BUCKET", "mjolnir333")
-FLUSH_SECONDS     = int(os.getenv("ARCHIVE_FLUSH_SECONDS", str(2 * 60)))
+FLUSH_SECONDS     = int(os.getenv("ARCHIVE_FLUSH_SECONDS", str(30 * 60)))
 
 # ── Clients ───────────────────────────────────────────────────────────────────
 subscriber            = pubsub_v1.SubscriberClient()

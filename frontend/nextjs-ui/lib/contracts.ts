@@ -11,14 +11,13 @@ export interface Log {
   inserted_at?: string;
   event_time?: string;
   service?: string;
-  trace_id?: string;
+  user_ingest_service?: string;
   message: string;
   normalized_message?: string;
   severity?: string;
   category?: string;
   anomaly_score?: number;
   anomaly_reason?: string;
-  model_version?: string;
   source_bucket?: string;
   source_object?: string;
   entities?: Record<string, unknown>;

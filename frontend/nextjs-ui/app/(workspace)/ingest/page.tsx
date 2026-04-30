@@ -17,13 +17,7 @@ const EXAMPLE_PAYLOAD = `[
     "message": "Failed login attempt for user admin from 192.168.1.45",
     "timestamp": "2025-04-22T14:32:00Z",
     "service": "auth-service",
-    "severity": "WARNING",
-    "trace_id": "abc-123-xyz",
-    "latency_ms": 42,
-    "raw_payload": {
-      "ip": "192.168.1.45",
-      "attempt": 3
-    }
+    "severity": "WARNING"
   }
 ]`;
 
@@ -33,13 +27,10 @@ const CURL_EXAMPLE = `curl -X POST ${INGEST_URL} \\
   -d '[{"message": "disk usage at 91%", "service": "storage", "severity": "WARNING"}]'`;
 
 const FIELDS = [
-  { name: "message",     type: "string",   required: true,  desc: "The raw log message text." },
-  { name: "timestamp",   type: "datetime", required: false, desc: "ISO 8601 timestamp of when the event occurred. Defaults to ingestion time if omitted." },
-  { name: "service",     type: "string",   required: false, desc: "Name of the service or application that produced the log." },
-  { name: "severity",    type: "string",   required: false, desc: "Log level: DEBUG, INFO, WARNING, ERROR, or CRITICAL." },
-  { name: "trace_id",    type: "string",   required: false, desc: "Distributed trace or request ID for correlating logs." },
-  { name: "latency_ms",  type: "integer",  required: false, desc: "Request or operation latency in milliseconds." },
-  { name: "raw_payload", type: "object",   required: false, desc: "Any additional fields or the full original log object." },
+  { name: "message",   type: "string",   required: true,  desc: "The raw log message text." },
+  { name: "timestamp", type: "datetime", required: false, desc: "ISO 8601 timestamp of when the event occurred. Defaults to ingestion time if omitted." },
+  { name: "service",   type: "string",   required: false, desc: "Name of the service or application that produced the log." },
+  { name: "severity",  type: "string",   required: false, desc: "Log level: DEBUG, INFO, WARNING, ERROR, or CRITICAL." },
 ];
 
 function CopyButton({ text }: { text: string }) {

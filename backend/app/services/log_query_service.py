@@ -14,12 +14,13 @@ class LogQueryService:
         logs = self.repository.get_logs(cursor, str(user_id))
 
         for log in logs:
-            log["event_time"] = to_iso_z(log["event_time"])
+            log["event_time"]  = to_iso_z(log["event_time"])  if log.get("event_time")  else None
+            log["inserted_at"] = to_iso_z(log["inserted_at"]) if log.get("inserted_at") else None
 
-        next_cursor = logs[-1]["event_time"] if logs else None
+        next_cursor = (logs[-1]["event_time"] or logs[-1]["inserted_at"]) if logs else None
 
         return logs, next_cursor
-    
+
 
     def get_log_by_id(self, log_id: str, user_id: UUID):
         log = self.repository.get_log_by_id(log_id, str(user_id))
@@ -27,7 +28,8 @@ class LogQueryService:
         if not log:
             return None
 
-        log["event_time"] = to_iso_z(log["event_time"])
+        log["event_time"]  = to_iso_z(log["event_time"])  if log.get("event_time")  else None
+        log["inserted_at"] = to_iso_z(log["inserted_at"]) if log.get("inserted_at") else None
 
         return log
     
