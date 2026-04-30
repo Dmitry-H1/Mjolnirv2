@@ -468,6 +468,7 @@ export default function LogDetailClient({ id }: Props) {
             <MetaCard label="Inserted At"  value={formatDateTime(log.inserted_at)} />
             <MetaCard label="Service"      value={log.user_ingest_service} />
             <MetaCard label="Component"    value={log.service} />
+            <MetaCard label="Category"     value={log.category} />
           </div>
 
           <SuggestionSection logId={id} />

@@ -191,6 +191,7 @@ export default function AnomaliesPage() {
                     "Level",
                     "Severity",
                     "Service",
+                    "Component",
                     "Category",
                     "Time",
                     "Message",
@@ -211,7 +212,7 @@ export default function AnomaliesPage() {
                 {filtered.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={8}
+                      colSpan={9}
                       className="text-center py-12 text-sm"
                       style={{ color: "var(--muted)" }}
                     >
@@ -266,6 +267,12 @@ export default function AnomaliesPage() {
                           className="px-4 py-3 text-sm whitespace-nowrap"
                           style={{ color: "var(--text)" }}
                         >
+                          {log.user_ingest_service || "—"}
+                        </td>
+                        <td
+                          className="px-4 py-3 text-xs whitespace-nowrap"
+                          style={{ color: "var(--muted)" }}
+                        >
                           {log.service || "—"}
                         </td>
                         <td
@@ -279,7 +286,7 @@ export default function AnomaliesPage() {
                             className="text-xs font-mono whitespace-nowrap"
                             style={{ color: "var(--muted)" }}
                           >
-                            {formatDateTime(log.event_time)}
+                            {formatDateTime(log.event_time ?? log.inserted_at)}
                           </span>
                         </td>
                         <td
