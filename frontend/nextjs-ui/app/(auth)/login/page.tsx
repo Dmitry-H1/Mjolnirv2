@@ -46,6 +46,16 @@ export default function LoginPage() {
     <div className="glass-panel rounded-2xl p-8 w-full max-w-md fade-up">
       {/* Logo */}
       <div className="mb-8 text-center">
+        <img
+          src="/mjolnir-logo.png"
+          alt="Mjolnir"
+          style={{
+            width: 64,
+            height: 64,
+            margin: "0 auto 12px",
+            objectFit: "contain",
+          }}
+        />
         <div
           className="display-title text-4xl font-bold mb-1"
           style={{ color: "var(--accent)" }}

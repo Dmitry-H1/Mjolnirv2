@@ -88,15 +88,22 @@ function SidebarContent({
     <div className="flex flex-col h-full">
       {/* Logo — hidden when drawer header already shows it */}
       {!hideLogo && (
-        <div className="px-6 pt-8 pb-6">
-          <div
-            className="display-title text-2xl font-bold tracking-tight"
-            style={{ color: "var(--accent)" }}
-          >
-            Mjolnir
-          </div>
-          <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
-            Log Intelligence Platform
+        <div className="px-6 pt-8 pb-6 flex items-center gap-3">
+          <img
+            src="/mjolnir-logo.png"
+            alt="Mjolnir"
+            style={{ width: 36, height: 36, objectFit: "contain", flexShrink: 0 }}
+          />
+          <div>
+            <div
+              className="display-title text-2xl font-bold tracking-tight"
+              style={{ color: "var(--accent)" }}
+            >
+              Mjolnir
+            </div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+              Log Intelligence Platform
+            </div>
           </div>
         </div>
       )}
@@ -220,11 +227,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Mobile: top bar + drawer ── */}
       <div className="md:hidden mobile-topbar glass-panel flex items-center justify-between px-4">
-        <div
-          className="display-title text-xl font-bold"
-          style={{ color: "var(--accent)" }}
-        >
-          Mjolnir
+        <div className="flex items-center gap-2">
+          <img
+            src="/mjolnir-logo.png"
+            alt="Mjolnir"
+            style={{ width: 24, height: 24, objectFit: "contain" }}
+          />
+          <div
+            className="display-title text-xl font-bold"
+            style={{ color: "var(--accent)" }}
+          >
+            Mjolnir
+          </div>
         </div>
         <button
           onClick={() => setDrawerOpen(true)}
@@ -261,11 +275,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               className="flex items-center justify-between px-5 py-4 flex-shrink-0"
               style={{ borderBottom: "1px solid var(--border)" }}
             >
-              <div
-                className="display-title text-xl font-bold"
-                style={{ color: "var(--accent)" }}
-              >
-                Mjolnir
+              <div className="flex items-center gap-2">
+                <img
+                  src="/mjolnir-logo.png"
+                  alt="Mjolnir"
+                  style={{ width: 24, height: 24, objectFit: "contain" }}
+                />
+                <div
+                  className="display-title text-xl font-bold"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Mjolnir
+                </div>
               </div>
               <button
                 onClick={() => setDrawerOpen(false)}
