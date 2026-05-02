@@ -33,7 +33,7 @@ import requests
 from faker import Faker
 
 # ── Config ─────────────────────────────────────────────────────────────────────
-API_URL          = os.getenv("MJOLNIR_API_URL",      "http://127.0.0.1:8000")
+API_URL          = os.getenv("MJOLNIR_API_URL",      "https://mjolnir-api-312539493095.us-east1.run.app")
 API_KEY          = os.getenv("MJOLNIR_API_KEY",      "")
 USERNAME         = os.getenv("MJOLNIR_USERNAME",     "")
 PASSWORD         = os.getenv("MJOLNIR_PASSWORD",     "")
